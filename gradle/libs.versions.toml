@@ -1,0 +1,52 @@
+[versions]
+
+kotlinCompilerExtensionVersion = "1.5.3"
+
+#plugins version
+androidGraldePlugin = "8.1.2"
+kotlinGradlePlugin = "1.9.10"
+
+
+
+# libs version
+androidxLifeCycle = "2.6.2"
+activityCompose = "1.7.2"
+composeBom = "2023.03.00"
+androidx_material3 = "1.2.0-alpha08"
+#junit = "4.13.2"
+#testExtJunit = "1.1.5"
+#espressoCore = "3.5.1"
+ktx = "1.12.0"
+ktor_version = "2.3.4"
+
+constraintlayout_compose = "1.1.0-alpha13"
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "androidGraldePlugin" }
+kotlin-plugin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlinGradlePlugin" }
+
+
+[libraries]
+androidx-composeActivity = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
+androidx-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "ktx" }
+androidx-lifecyle = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "androidxLifeCycle" }
+androidx-composeBom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+androidx-composeUi = { module = "androidx.compose.ui:ui" }
+androidx-composeFoundation = { module = "androidx.compose.foundation:foundation" }
+androidx-material3 = { module = "androidx.compose.material3:material3", version.ref = "androidx_material3" }
+androidx-composeUiToolingPreview = { module = "androidx.compose.ui:ui-tooling-preview" }
+androidx-composeUiTooling = { module = "androidx.compose.ui:ui-tooling" }
+androidx-compose-uiGraphics = { module = "androidx.compose.ui:ui-graphics" }
+androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayout_compose" }
+
+
+junit-test = "junit:junit:4.13.2"
+androidx-junit-test = "androidx.test.ext:junit:1.1.5"
+
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor_version" }
+ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor_version" }
+ktor-client-contentNegotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor_version" }
+ktor-serialization-gson = { module = "io.ktor:ktor-serialization-gson", version.ref = "ktor_version" }
+
+
+
