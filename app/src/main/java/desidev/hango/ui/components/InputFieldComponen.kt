@@ -58,6 +58,7 @@ fun EmailInputFieldComponent(
     modifier: Modifier = Modifier,
     label: String,
     value: String,
+    readOnly: Boolean = false,
     containerColor: Color = MaterialTheme.colorScheme.surfaceContainer,
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
     onValueChange: (newValue: String) -> Unit,
@@ -88,6 +89,7 @@ fun EmailInputFieldComponent(
         Spacer(modifier = Modifier.height(12.dp))
         BasicTextField(
             value = value,
+            readOnly = readOnly,
             onValueChange = onValueChange,
             decorationBox = decorationBox,
             textStyle = textStyle,

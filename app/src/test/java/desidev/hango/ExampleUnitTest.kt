@@ -1,12 +1,9 @@
 package desidev.hango
 
-import androidx.compose.runtime.Composable
-import desidev.customnavigation.Component
-import desidev.customnavigation.viewmodel.viewModelProvider
-import desidev.hango.viewmodels.SignUpViewModel
+import desidev.hango.states.IAction
+import desidev.hango.states.Store
+import org.junit.Assert.assertEquals
 import org.junit.Test
-
-import org.junit.Assert.*
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -14,31 +11,50 @@ import org.junit.Assert.*
  * See [testing documentation](http://d.android.com/tools/testing).
  */
 class ExampleUnitTest {
+
+    @Test
+    fun countSlotTest() {
+        val store = Store<String>()
+        store.config {
+            put("count") { 0 }
+        }
+
+        val ref = store.getRef<Int>("count")
+
+        println("initial value: ${ref.getValue()}")
+
+        ref.observe { old, new ->
+            println("count value: $new")
+        }
+
+        ref.dispatch(Increment)
+        ref.dispatch(Decrement)
+
+        val count = store.getRef<Int>("count")
+
+        ref.dispose()
+        count.dispose()
+    }
+
     @Test
     fun addition_isCorrect() {
         assertEquals(4, 2 + 2)
     }
+}
 
 
-    @Test
-    fun classMatch() {
-        val model = SignUpViewModel()
-        assert(SignUpViewModel::class.isInstance(model))
+
+
+data class IncrementBy(val value: Int) : IAction<Int> {
+    override fun execute(value: Int): Int {
+        return value + this.value
     }
+}
 
-    @Test
-    fun viewModelProviderTest(){
-        viewModelProvider.registerViewModelBuilder {
-            addBuilderFor(SignUpViewModel::class) { SignUpViewModel() }
-        }
+data object Increment : IAction<Int> {
+    override fun execute(value: Int): Int = value + 1
+}
 
-        val node = object : Component() {
-            @Composable
-            override fun Content() {
-            }
-        }
-
-        val viewModel = viewModelProvider.getViewModel(node, SignUpViewModel::class)
-        assert(viewModel != null)
-    }
+data object Decrement : IAction<Int> {
+    override fun execute(value: Int): Int = value - 1
 }

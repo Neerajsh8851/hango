@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "desidev.talkme"
+    namespace = "desidev.hango"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "desidev.talkme"
+        applicationId = "desidev.hango"
         minSdk = 24
         versionCode = 1
         versionName = "1.0"

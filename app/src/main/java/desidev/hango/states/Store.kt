@@ -52,12 +52,12 @@ class Store<SlotKey> {
     }
 
     inner class StoreFactory internal constructor() {
-        private val factory = hashMapOf<SlotKey, () -> ValueDispatch<*>>()
-        fun put(key: SlotKey, block: () -> ValueDispatch<*>) {
+        private val factory = hashMapOf<SlotKey, () -> Any>()
+        fun <R : Any> put(key: SlotKey, block: () -> R) {
             factory[key] = block
         }
 
-        internal fun getSlot(key: SlotKey) = factory[key]?.invoke()
+        internal fun getSlot(key: SlotKey) = factory[key]?.invoke()?.let { StateValue(it) }
             ?: throw IllegalStateException("no slot were found on key $key")
     }
 }

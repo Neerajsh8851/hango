@@ -29,7 +29,7 @@ class StateValue<ValueType>(
 
     override fun dispatch(effect: IAsyncSideEffect<ValueType>) {
         scope.launch {
-            effect.execute(this@StateValue)
+            effect.execute(getValue(), this@StateValue)
         }
     }
 }
