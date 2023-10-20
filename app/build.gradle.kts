@@ -30,6 +30,7 @@ android {
         }
     }
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
@@ -75,4 +76,6 @@ dependencies {
     androidTestImplementation(platform(libs.androidx.composeBom))
 //    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation(libs.androidx.composeUiTooling)
+
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
 }

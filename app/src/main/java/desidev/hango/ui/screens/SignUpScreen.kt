@@ -22,11 +22,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
-import desidev.hango.appstate.AppStore.StateKeys
+import desidev.hango.appstate.navigation.NavigationAction
 import desidev.hango.appstate.SignUpScreenState
-import desidev.hango.states.Store
-import desidev.hango.states.ValueDispatch
-import desidev.hango.ui.collectAsState
+import desidev.hango.appstate.SignUpScreenStateAction
+import desidev.hango.appstate.UiState
+import desidev.hango.states.StateValue
+import desidev.hango.states.convert
 import desidev.hango.ui.components.EmailInputFieldComponent
 import desidev.hango.ui.components.PasswordInputFieldComponent
 import desidev.hango.ui.theme.AppTheme
@@ -35,30 +36,28 @@ import desidev.hango.ui.theme.AppTheme
 @Composable
 fun Preview() {
     AppTheme {
-        val store = Store<StateKeys>().apply {
-            config {
-                put(StateKeys.VerifyEmailState) {
-                    SignUpScreenState.EnterEmail(
-                        email = "myemail@my.domain",
-                        isValid = false
-                    )
-                }
-            }
-        }
-
-        SignUpScreen(store = store)
+        SignUpScreen(
+            state = StateValue(SignUpScreenState()),
+            navigationAction = { navigationAction -> }
+        )
     }
 }
 
 @Composable
-fun SignUpScreen(store: Store<StateKeys>) {
-    val stateRef = store.getRef<SignUpScreenState>(StateKeys.VerifyEmailState)
-    val state by stateRef.collectAsState()
-
+fun SignUpScreen(
+    state: StateValue<SignUpScreenState>,
+    navigationAction: (NavigationAction) -> Unit
+) {
     Surface(modifier = Modifier.fillMaxSize()) {
         ConstraintLayout {
-
             val (topLabel, textInputs, bottomContent) = createRefs()
+
+            val signUpScreenState by convert(state) { it }
+            val buttonAction = when (signUpScreenState.uiState) {
+                UiState.EditEmail -> SignUpScreenStateAction.SendOtp
+                UiState.SignUp -> TODO()
+                UiState.EnterOtp -> TODO()
+            }
 
             Text(
                 text = "Verify Your Email",
@@ -72,7 +71,6 @@ fun SignUpScreen(store: Store<StateKeys>) {
 
             TextInput(
                 state = state,
-                valueDispatch = stateRef,
                 modifier = Modifier.constrainAs(textInputs) {
                     centerHorizontallyTo(parent)
                     centerVerticallyTo(parent)
@@ -80,7 +78,8 @@ fun SignUpScreen(store: Store<StateKeys>) {
             )
 
             BottomContent(
-                state = state,
+                state = signUpScreenState,
+                onButtonPressed = { state.dispatch(buttonAction) },
                 modifier = Modifier.constrainAs(bottomContent) {
                     centerHorizontallyTo(parent)
                     bottom.linkTo(parent.bottom)
@@ -93,47 +92,35 @@ fun SignUpScreen(store: Store<StateKeys>) {
 @Composable
 fun TextInput(
     modifier: Modifier,
-    state: SignUpScreenState,
-    valueDispatch: ValueDispatch<SignUpScreenState>,
+    state: StateValue<SignUpScreenState>,
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        if (state is SignUpScreenState.EnterEmail) {
-            EmailField(email = state.email, onEmailAddressChange = { newValue ->
-                valueDispatch.dispatch(SignUpScreenState.UpdateEmail(newValue))
+        val email by convert(state) { it.email }
+        val password by convert(state) { it.password }
+        val otpSent by convert(state) { it.isOtpSent }
+
+        EmailField(
+            email = email,
+            readOnly = otpSent,
+            onEmailAddressChange = { newValue ->
+                state.dispatch(
+                    SignUpScreenStateAction.UpdateEmail(newValue)
+                )
             })
-        }
 
-        if (state is SignUpScreenState.EnterOtp) {
-            EmailField(
-                email = state.email,
-                onEmailAddressChange = {
-                },
-                readOnly = true
-            )
-
-            EmailInputFieldComponent(
-                label = "One Time Pin",
-                value = state.otp, onValueChange = {}
-            )
-        }
-
-        if (state is SignUpScreenState.SetPassword) {
-            EmailField(
-                email = state.email,
-                onEmailAddressChange = {},
-                readOnly = true
-            )
-
+        if (otpSent) {
             PasswordInputFieldComponent(
-                value = state.password,
+                value = password,
                 leadingIcon = {
                     IconButton(onClick = { }) {
                         Icon(imageVector = Icons.Default.Done, contentDescription = null)
                     }
                 },
-                onValueChange = { }
+                onValueChange = {
+                }
             )
         }
+
     }
 }
 
@@ -152,6 +139,7 @@ fun EmailField(email: String, readOnly: Boolean = false, onEmailAddressChange: (
 fun BottomContent(
     modifier: Modifier,
     state: SignUpScreenState,
+    onButtonPressed: () -> Unit
 ) {
     Column(
         modifier = modifier.padding(bottom = 20.dp),
@@ -159,14 +147,14 @@ fun BottomContent(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
 
-        val btnText = when (state) {
-            is SignUpScreenState.EnterEmail -> "Send Otp"
-            is SignUpScreenState.EnterOtp -> "Verify"
-            is SignUpScreenState.SetPassword -> "Sign-in"
+        val btnText = when (state.uiState) {
+            UiState.EditEmail -> "Send Otp"
+            UiState.EnterOtp -> "Verify"
+            UiState.SignUp -> "Sign Up"
         }
 
         Button(
-            onClick = { /*TODO*/ },
+            onClick = onButtonPressed,
             modifier = Modifier.width(280.dp)
         ) {
             Text(

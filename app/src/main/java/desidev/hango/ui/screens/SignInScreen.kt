@@ -20,9 +20,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
@@ -34,8 +32,16 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
-import desidev.customnavigation.Screen
 import desidev.hango.R
+import desidev.hango.appstate.SignInScreenState
+import desidev.hango.appstate.SignUpScreenState
+import desidev.hango.appstate.navigation.NavigationAction
+import desidev.hango.appstate.navigation.Screen
+import desidev.hango.appstate.togglePasswordVisibility
+import desidev.hango.appstate.updateEmail
+import desidev.hango.appstate.updatePassword
+import desidev.hango.states.StateValue
+import desidev.hango.states.convert
 import desidev.hango.ui.components.EmailInputFieldComponent
 import desidev.hango.ui.components.PasswordInputFieldComponent
 import desidev.hango.ui.theme.AppTheme
@@ -45,177 +51,197 @@ import desidev.hango.ui.theme.AppTheme
 @Composable
 fun SignInScreenPreview() {
     AppTheme(dynamicColor = false) {
-        SignInScreen.Content()
+        SignInScreenContent(
+            state = StateValue(
+                SignInScreenState(
+                    emailAddress = "",
+                    password = "",
+                    hidePassword = false
+                )
+            ),
+            onNavigationAction = {
+            }
+        )
     }
 }
 
-object SignInScreen : Screen() {
-    @Composable
-    override fun Content() {
-        var emailAddr by remember { mutableStateOf("neezoytsharma@gmail.com") }
-        var password by remember { mutableStateOf("Mm6grt8@") }
 
-        Surface(modifier = Modifier.fillMaxSize()) {
-            ConstraintLayout {
-                val (topLabel, inputsAndOps, signInOps) = createRefs()
+@Composable
+fun SignInScreenContent(
+    state: StateValue<SignInScreenState>,
+    onNavigationAction: (NavigationAction) -> Unit
+) {
+    val emailAddr by convert(state) { it.emailAddress }
+    val password by convert(state) { it.password }
+    val hidePassword by convert(state) { it.hidePassword }
 
-                Text(
-                    text = "Sign-in",
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.constrainAs(topLabel) {
-                        centerHorizontallyTo(parent)
-                        top.linkTo(parent.top)
-                        bottom.linkTo(inputsAndOps.top)
-                    })
+    Surface(modifier = Modifier.fillMaxSize()) {
+        ConstraintLayout {
+            val (topLabel, inputsAndOps, signInOps) = createRefs()
 
-                InputFieldsAndOptions(
-                    emailAddr = emailAddr,
-                    password = password,
-                    onEmailChange = { newValue -> emailAddr = newValue },
-                    onPasswordChange = { newValue -> password = newValue },
-                    onForgotPassword = { },
-                    modifier = Modifier.constrainAs(inputsAndOps) {
-                        centerVerticallyTo(parent)
-                        centerHorizontallyTo(parent)
-                    }
-                )
+            Text(
+                text = "Sign-in",
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.constrainAs(topLabel) {
+                    centerHorizontallyTo(parent)
+                    top.linkTo(parent.top)
+                    bottom.linkTo(inputsAndOps.top)
+                })
 
-                SignInOptions(
-                    modifier = Modifier.constrainAs(signInOps) {
-                        bottom.linkTo(parent.bottom)
-                        top.linkTo(inputsAndOps.bottom)
-                        centerHorizontallyTo(parent)
-                    },
-                    onSignInClick = {},
-                    onSignUpClick = {}
-                )
-            }
-        }
-    }
+            InputFieldsAndOptions(
+                emailAddr = emailAddr,
+                password = password,
+                hidePassword = hidePassword,
+                onEmailChange = { newValue -> state.updateEmail(newValue) },
+                onPasswordChange = { newValue -> state.updatePassword(newValue) },
+                onForgetPasswordClick = { },
+                onPasswordVisiblityToggole = { state.togglePasswordVisibility() },
+                modifier = Modifier.constrainAs(inputsAndOps) {
+                    centerVerticallyTo(parent)
+                    centerHorizontallyTo(parent)
+                }
+            )
 
-
-    @Composable
-    fun InputFieldsAndOptions(
-        emailAddr: String,
-        password: String,
-        onEmailChange: (String) -> Unit,
-        onPasswordChange: (String) -> Unit,
-        onForgotPassword: () -> Unit,
-        modifier: Modifier = Modifier
-    ) {
-        var hidePassword by remember { mutableStateOf(true) }
-        val focusManager = LocalFocusManager.current
-        val keyboardActions = remember {
-            KeyboardActions(
-                onNext = {
-                    focusManager.moveFocus(FocusDirection.Down)
+            SignInOptions(
+                modifier = Modifier.constrainAs(signInOps) {
+                    bottom.linkTo(parent.bottom)
+                    top.linkTo(inputsAndOps.bottom)
+                    centerHorizontallyTo(parent)
                 },
-                onDone = {
-                    focusManager.clearFocus()
+                onSignInClick = {},
+                onSignUpClick = {
+                    onNavigationAction(NavigationAction.Replace(
+                        Screen.SignUpScreen(
+                            StateValue(
+                                SignUpScreenState()
+                            )
+                        )
+                    ))
                 }
             )
         }
+    }
+}
 
-        Column(modifier = modifier.width(280.dp)) {
-            EmailInputFieldComponent(
-                modifier = Modifier.width(280.dp),
-                label = "Email Address",
-                value = emailAddr,
-                onValueChange = onEmailChange,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Next
-                ),
-                keyboardActions = keyboardActions
-            )
 
-            Spacer(modifier = Modifier.height(24.dp))
+@Composable
+fun InputFieldsAndOptions(
+    emailAddr: String,
+    password: String,
+    hidePassword: Boolean,
+    onPasswordVisiblityToggole: () -> Unit,
+    onEmailChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onForgetPasswordClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val focusManager = LocalFocusManager.current
+    val keyboardActions = remember {
+        KeyboardActions(
+            onNext = {
+                focusManager.moveFocus(FocusDirection.Down)
+            },
+            onDone = {
+                focusManager.clearFocus()
+            }
+        )
+    }
 
-            PasswordInputFieldComponent(
-                value = password,
-                hidePassword = hidePassword,
-                onValueChange = onPasswordChange,
-                leadingIcon = {
-                    val iconPainterResource =
-                        if (hidePassword) {
-                            painterResource(id = R.drawable.visibility_24)
-                        } else {
-                            painterResource(id = R.drawable.visibility_off_24)
-                        }
+    Column(modifier = modifier.width(280.dp)) {
+        EmailInputFieldComponent(
+            modifier = Modifier.width(280.dp),
+            label = "Email Address",
+            value = emailAddr,
+            onValueChange = onEmailChange,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Email,
+                imeAction = ImeAction.Next
+            ),
+            keyboardActions = keyboardActions
+        )
 
-                    IconButton(onClick = {
-                        hidePassword = hidePassword.not()
-                    }) {
-                        Icon(
-                            painter = iconPainterResource,
-                            contentDescription = null
-                        )
+        Spacer(modifier = Modifier.height(24.dp))
+
+        PasswordInputFieldComponent(
+            value = password,
+            hidePassword = hidePassword,
+            onValueChange = onPasswordChange,
+            leadingIcon = {
+                val iconPainterResource =
+                    if (hidePassword) {
+                        painterResource(id = R.drawable.visibility_24)
+                    } else {
+                        painterResource(id = R.drawable.visibility_off_24)
                     }
-                },
-                keyboardActions = keyboardActions
-            )
 
-            Spacer(modifier = Modifier.height(12.dp))
+                IconButton(onClick = onPasswordVisiblityToggole) {
+                    Icon(
+                        painter = iconPainterResource,
+                        contentDescription = null
+                    )
+                }
+            },
+            keyboardActions = keyboardActions
+        )
 
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Text(
+            text = "Forgot password?",
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.tertiary,
+            modifier = Modifier
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() },
+                    onClick = onForgetPasswordClick
+                )
+                .padding(vertical = 8.dp)
+                .align(Alignment.End)
+        )
+    }
+}
+
+
+@Composable
+fun SignInOptions(
+    modifier: Modifier,
+    onSignInClick: () -> Unit,
+    onSignUpClick: () -> Unit,
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+    ) {
+        Button(
+            onClick = onSignInClick, modifier = Modifier
+                .width(280.dp)
+        ) {
+            Text(text = "Sign-in")
+        }
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.padding(top = 24.dp)
+        ) {
             Text(
-                text = "Forgot password?",
+                text = "New to Hango?",
+                style = MaterialTheme.typography.labelMedium,
+            )
+            Text(
+                text = "Sign-up",
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.tertiary,
+                textDecoration = TextDecoration.Underline,
                 modifier = Modifier
                     .clickable(
-                        indication = null,
+                        onClick = onSignUpClick,
                         interactionSource = remember { MutableInteractionSource() },
-                        onClick = onForgotPassword
+                        indication = null,
                     )
                     .padding(vertical = 8.dp)
-                    .align(Alignment.End)
             )
         }
     }
-
-
-    @Composable
-    fun SignInOptions(
-        modifier: Modifier,
-        onSignInClick: () -> Unit,
-        onSignUpClick: () -> Unit,
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = modifier
-        ) {
-            Button(
-                onClick = onSignInClick, modifier = Modifier
-                    .width(280.dp)
-            ) {
-                Text(text = "Sign-in")
-            }
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.padding(top = 24.dp)
-            ) {
-                Text(
-                    text = "New to Hango?",
-                    style = MaterialTheme.typography.labelMedium,
-                )
-                Text(
-                    text = "Sign-up",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.tertiary,
-                    textDecoration = TextDecoration.Underline,
-                    modifier = Modifier
-                        .clickable(
-                            onClick = onSignUpClick,
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null,
-                        )
-                        .padding(vertical = 8.dp)
-                )
-            }
-        }
-    }
-
-
 }

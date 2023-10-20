@@ -5,11 +5,11 @@ fun interface IAsyncSideEffect<ValueType> {
 }
 
 fun interface IAction<ValueType> {
-    fun execute(value: ValueType): ValueType
+    fun execute(prev: ValueType): ValueType
 }
 
 fun interface IAsyncAction<StateType> {
-    suspend fun asyncExecute(param: StateType): StateType
+    suspend fun asyncExecute(prev: StateType): StateType
 }
 
 

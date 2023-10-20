@@ -1,6 +1,10 @@
 package desidev.hango
 
+import desidev.hango.states.Dec
 import desidev.hango.states.IAction
+import desidev.hango.states.Inc
+import desidev.hango.states.Message
+import desidev.hango.states.StateWrapper
 import desidev.hango.states.Store
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -39,6 +43,28 @@ class ExampleUnitTest {
     @Test
     fun addition_isCorrect() {
         assertEquals(4, 2 + 2)
+    }
+
+
+    @Test
+    fun stateWrapperTest() {
+        val stateWrapper = StateWrapper<Int, Message>(0) { prev, msg ->
+            when (msg) {
+                is Inc -> {
+                    prev + 1
+                }
+
+                is Dec -> {
+                    prev - 1
+                }
+            }
+        }
+
+        stateWrapper.addObserver { o, n ->
+            println("on update: $n")
+        }
+
+        stateWrapper.send(Inc)
     }
 }
 

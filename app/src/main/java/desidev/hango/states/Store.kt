@@ -17,11 +17,13 @@ class Store<SlotKey> {
         val state = getStateValue<StateValue<T>>(key)
 
         val ref = object : ValueReference<T> {
+            var isDisposed = false
             val observers = mutableListOf<Observer<T>>()
 
             override fun getValue(): T = state.getValue()
 
             override fun observe(observer: Observer<T>) {
+                if (isDisposed) throw IllegalStateException("You cannot use disposed ValueReference")
                 observers.add(observer)
                 state.addObserver(observer)
             }
@@ -37,6 +39,13 @@ class Store<SlotKey> {
                     slots.remove(key).also {
                         println("Last ValueRef removed the Value on dispose")
                     }
+                }
+                isDisposed = true
+            }
+
+            protected fun finalize() {
+                if (isDisposed.not())  {
+                    dispose()
                 }
             }
         }

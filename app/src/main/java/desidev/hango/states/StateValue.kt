@@ -3,6 +3,7 @@ package desidev.hango.states
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 class StateValue<ValueType>(
@@ -31,5 +32,8 @@ class StateValue<ValueType>(
         scope.launch {
             effect.execute(getValue(), this@StateValue)
         }
+    }
+    protected fun finalize() {
+        scope.cancel()
     }
 }
