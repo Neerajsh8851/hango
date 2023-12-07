@@ -1,7 +1,6 @@
 package desidev.hango
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -9,14 +8,13 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import desidev.hango.appstate.AppState
-import desidev.hango.appstate.navigation.NavigationModel
 import desidev.hango.appstate.navigation.NavigationAction
+import desidev.hango.appstate.navigation.NavigationModel
 import desidev.hango.appstate.navigation.Screen
 import desidev.hango.states.StateValue
 import desidev.hango.states.convert
 import desidev.hango.ui.screens.SignInScreenContent
 import desidev.hango.ui.theme.AppTheme
-import java.time.LocalDateTime
 
 
 var appState: AppState? = null
