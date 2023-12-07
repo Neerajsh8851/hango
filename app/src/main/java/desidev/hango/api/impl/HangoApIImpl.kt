@@ -18,7 +18,7 @@ import io.ktor.serialization.gson.gson
 import kotlinx.coroutines.CancellationException
 import java.lang.RuntimeException
 
-class ImplHangoApI(private val baseUrl: String) : HangoApi {
+class DefualtHangoApi(private val baseUrl: String) : HangoApi {
 
     private val client by lazy {
         HttpClient(CIO) {
