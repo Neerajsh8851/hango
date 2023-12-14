@@ -2,41 +2,92 @@ package desidev.hango
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
-import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import desidev.hango.appstate.AppState
-import desidev.hango.appstate.navigation.NavigationAction
-import desidev.hango.appstate.navigation.NavigationModel
-import desidev.hango.appstate.navigation.Screen
-import desidev.hango.states.StateValue
-import desidev.hango.states.convert
-import desidev.hango.ui.screens.SignInScreenContent
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import com.arkivanov.decompose.ExperimentalDecomposeApi
+import com.arkivanov.decompose.extensions.compose.jetpack.stack.Children
+import com.arkivanov.decompose.extensions.compose.jetpack.stack.animation.fade
+import com.arkivanov.decompose.extensions.compose.jetpack.stack.animation.plus
+import com.arkivanov.decompose.extensions.compose.jetpack.stack.animation.scale
+import com.arkivanov.decompose.extensions.compose.jetpack.stack.animation.stackAnimation
+import com.arkivanov.decompose.extensions.compose.jetpack.subscribeAsState
+import com.arkivanov.decompose.retainedComponent
+import com.arkivanov.essenty.lifecycle.LifecycleOwner
+import com.arkivanov.essenty.lifecycle.doOnDestroy
+import desidev.hango.ui.navigation.RootComponent
+import desidev.hango.ui.navigation.ScreenAComponent
+import desidev.hango.ui.navigation.ScreenBComponent
 import desidev.hango.ui.theme.AppTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancel
+import kotlin.coroutines.CoroutineContext
 
-
-var appState: AppState? = null
 
 class MainActivity : ComponentActivity() {
+    @OptIn(ExperimentalDecomposeApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        appState = AppState(
-            navigationState = StateValue(
-                NavigationModel(
-                    screen = Screen.LoadingScreen,
-                    list = emptyList()
-                )
-            )
-        )
+        val root = retainedComponent { RootComponent(it) }
 
         setContent {
             AppTheme {
-                NavigationComp(navigationState = appState!!.navigationState, onExitApp = {
-                    finishAfterTransition()
-                })
+                RootContent(rootComponent = root)
+            }
+        }
+    }
+}
+
+
+
+
+
+@Composable
+fun RootContent(rootComponent: RootComponent, modifier: Modifier = Modifier) {
+    rootComponent.stack.value.backStack
+    Children(
+        stack = rootComponent.stack,
+        modifier = modifier,
+        animation = stackAnimation(fade() + scale())
+    ) {
+        when (val child = it.instance) {
+            is RootComponent.Child.ScreenA -> ScreenAContent(child.screenAComponent)
+            is RootComponent.Child.ScreenB -> ScreenBContent(child.screenBComponent)
+        }
+    }
+}
+
+
+@Composable
+fun ScreenAContent(comp: ScreenAComponent) {
+    val text by comp.text.subscribeAsState()
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier.align(Alignment.Center),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            TextField(
+                value = text,
+                onValueChange = { comp.onEvent(ScreenAComponent.Event.UpdateText(it)) }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(onClick = { comp.onEvent(ScreenAComponent.Event.OnClickButtonA) }) {
+                Text(text = "ButtonA")
             }
         }
     }
@@ -44,40 +95,18 @@ class MainActivity : ComponentActivity() {
 
 
 @Composable
-fun NavigationComp(navigationState: StateValue<NavigationModel>, onExitApp: () -> Unit) {
-    val currentScreen by convert(navigationState) { it.screen }
+fun ScreenBContent(comp: ScreenBComponent) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier.align(Alignment.Center),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(text = "Message from screen A: ${comp.message}")
 
-    Crossfade(currentScreen, label = "") { screen ->
-        when (screen) {
-            is Screen.LoadingScreen -> {
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(onClick = { comp.goBack() } ) {
+                Text(text = "Go back!")
             }
-
-            is Screen.SignInScreen -> {
-                SignInScreenContent(
-                    state = screen.signInScreenState,
-                    onNavigationAction = {
-                        navigationState.dispatch(it)
-                    }
-                )
-            }
-
-            is Screen.SignUpScreen -> {
-
-            }
-
-            is Screen.HomeScreen -> {}
-        }
-    }
-
-    BackHandler {
-        val screens = navigationState.getValue().list
-
-        if (screens.isNotEmpty()) {
-            navigationState.dispatch(
-                NavigationAction.Back
-            )
-        } else {
-            onExitApp()
         }
     }
 }

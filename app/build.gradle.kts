@@ -2,6 +2,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.plugin)
+    id("kotlin-parcelize")
+//    kotlin("plugin.serialization") version "1.9.21"
 }
 
 android {
@@ -52,12 +54,12 @@ android {
 }
 
 dependencies {
-    implementation(group = "desidev.customnavigation", name = "custom-navigation")
     implementation(libs.androidx.ktx)
     implementation(libs.androidx.lifecyle)
     implementation(libs.androidx.composeActivity)
 
     implementation(platform(libs.androidx.composeBom))
+    implementation(libs.androidx.composeFoundation)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.composeUi)
     debugImplementation(libs.androidx.composeUiTooling)
@@ -78,4 +80,9 @@ dependencies {
     debugImplementation(libs.androidx.composeUiTooling)
 
     coreLibraryDesugaring(libs.desugar.jdk.libs)
+
+    implementation(libs.decompose)
+    implementation(libs.decompose.jetpack)
+
+//    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 }

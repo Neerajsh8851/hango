@@ -1,4 +1,4 @@
-package desidev.hango.ui.screens
+package desidev.hango.ui.screens.signin
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -19,6 +19,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -33,47 +34,28 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import desidev.hango.R
-import desidev.hango.appstate.SignInScreenState
-import desidev.hango.appstate.SignUpScreenState
-import desidev.hango.appstate.navigation.NavigationAction
-import desidev.hango.appstate.navigation.Screen
-import desidev.hango.appstate.togglePasswordVisibility
-import desidev.hango.appstate.updateEmail
-import desidev.hango.appstate.updatePassword
-import desidev.hango.states.StateValue
-import desidev.hango.states.convert
 import desidev.hango.ui.components.EmailInputFieldComponent
 import desidev.hango.ui.components.PasswordInputFieldComponent
 import desidev.hango.ui.theme.AppTheme
+
+import desidev.hango.ui.screens.signin.SignInComponent.Event
 
 
 @Preview(name = "SignInScreen", showSystemUi = true)
 @Composable
 fun SignInScreenPreview() {
     AppTheme(dynamicColor = false) {
-        SignInScreenContent(
-            state = StateValue(
-                SignInScreenState(
-                    emailAddress = "",
-                    password = "",
-                    hidePassword = false
-                )
-            ),
-            onNavigationAction = {
-            }
-        )
+        val bloc = remember { FakeSignInComponent() }
+        SignInContent(bloc)
     }
 }
 
 
 @Composable
-fun SignInScreenContent(
-    state: StateValue<SignInScreenState>,
-    onNavigationAction: (NavigationAction) -> Unit
-) {
-    val emailAddr by convert(state) { it.emailAddress }
-    val password by convert(state) { it.password }
-    val hidePassword by convert(state) { it.hidePassword }
+fun SignInContent(bloc: SignInComponent) {
+    val emailAddr by bloc.userEmail.collectAsState()
+    val password by bloc.userPassword.collectAsState()
+    val hidePassword by bloc.hidePassword.collectAsState()
 
     Surface(modifier = Modifier.fillMaxSize()) {
         ConstraintLayout {
@@ -92,10 +74,10 @@ fun SignInScreenContent(
                 emailAddr = emailAddr,
                 password = password,
                 hidePassword = hidePassword,
-                onEmailChange = { newValue -> state.updateEmail(newValue) },
-                onPasswordChange = { newValue -> state.updatePassword(newValue) },
-                onForgetPasswordClick = { },
-                onPasswordVisiblityToggole = { state.togglePasswordVisibility() },
+                onEmailChange = { newValue -> bloc.onEvent(Event.UpdateEmail(newValue)) },
+                onPasswordChange = { newValue -> bloc.onEvent(Event.UpdatePassword(newValue)) },
+                onForgetPasswordClick = { bloc.onEvent(Event.ForgetPassClick) },
+                passwordVisibilityToggle = { bloc.onEvent(Event.TogglePasswordVisibility) },
                 modifier = Modifier.constrainAs(inputsAndOps) {
                     centerVerticallyTo(parent)
                     centerHorizontallyTo(parent)
@@ -108,15 +90,11 @@ fun SignInScreenContent(
                     top.linkTo(inputsAndOps.bottom)
                     centerHorizontallyTo(parent)
                 },
-                onSignInClick = {},
+                onSignInClick = {
+                    bloc.onEvent(Event.SignInClick)
+                },
                 onSignUpClick = {
-                    onNavigationAction(NavigationAction.Replace(
-                        Screen.SignUpScreen(
-                            StateValue(
-                                SignUpScreenState()
-                            )
-                        )
-                    ))
+                    bloc.onEvent(Event.SignUpClick)
                 }
             )
         }
@@ -129,7 +107,7 @@ fun InputFieldsAndOptions(
     emailAddr: String,
     password: String,
     hidePassword: Boolean,
-    onPasswordVisiblityToggole: () -> Unit,
+    passwordVisibilityToggle: () -> Unit,
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onForgetPasswordClick: () -> Unit,
@@ -174,7 +152,7 @@ fun InputFieldsAndOptions(
                         painterResource(id = R.drawable.visibility_off_24)
                     }
 
-                IconButton(onClick = onPasswordVisiblityToggole) {
+                IconButton(onClick = passwordVisibilityToggle) {
                     Icon(
                         painter = iconPainterResource,
                         contentDescription = null

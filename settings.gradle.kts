@@ -17,5 +17,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "hango"
 include(":app")
-
-includeBuild("../../android-libraries/custom-navigation")
