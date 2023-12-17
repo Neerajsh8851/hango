@@ -1,7 +1,7 @@
-package desidev.hango.ui.screens.signup
+package desidev.hango.ui.screens.signup_process.signup
 
 import com.arkivanov.decompose.ComponentContext
-import desidev.hango.ui.screens.Component
+import desidev.hango.ui.screens.Events
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -13,7 +13,7 @@ sealed class Event {
     data object TogglePassVisibility : Event()
 }
 
-interface SignUpComponent : Component<Event> {
+interface SignUpComponent : Events<Event> {
     val userEmail: StateFlow<String>
     val userPassword: StateFlow<String>
     val hidePassword: StateFlow<Boolean>

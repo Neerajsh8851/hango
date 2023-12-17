@@ -12,11 +12,12 @@ androidx_material3 = "1.2.0-alpha08"
 #espressoCore = "3.5.1"
 ktx = "1.12.0"
 ktor_version = "2.3.4"
-constraintlayout_compose = "1.1.0-alpha13"
+constraintlayout_compose = "1.0.1"
 
 #plugins version
 androidGraldePlugin = "8.1.2"
 kotlinGradlePlugin = "1.9.21"
+ohTeePeeVersion = "1.0.6"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGraldePlugin" }
@@ -36,6 +37,7 @@ androidx-composeUiTooling = { module = "androidx.compose.ui:ui-tooling" }
 androidx-compose-uiGraphics = { module = "androidx.compose.ui:ui-graphics" }
 androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayout_compose" }
 
+composeuisuite-ohteepee = { module = "com.github.composeuisuite:ohteepee", version.ref = "ohTeePeeVersion" }
 decompose = { module = "com.arkivanov.decompose:decompose", version.ref = "decompose" }
 decompose_jetpack = { module = "com.arkivanov.decompose:extensions-compose-jetpack", version.ref = "decompose" }
 desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }

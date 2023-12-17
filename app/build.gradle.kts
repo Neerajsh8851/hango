@@ -85,4 +85,6 @@ dependencies {
     implementation(libs.decompose.jetpack)
 
 //    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+
+    implementation(libs.composeuisuite.ohteepee)
 }

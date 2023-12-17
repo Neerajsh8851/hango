@@ -34,8 +34,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import desidev.hango.R
-import desidev.hango.ui.components.EmailInputFieldComponent
-import desidev.hango.ui.components.PasswordInputFieldComponent
+import desidev.hango.ui.composables.EmailInputField
+import desidev.hango.ui.composables.PasswordInputFieldComponent
 import desidev.hango.ui.theme.AppTheme
 
 import desidev.hango.ui.screens.signin.SignInComponent.Event
@@ -126,7 +126,7 @@ fun InputFieldsAndOptions(
     }
 
     Column(modifier = modifier.width(280.dp)) {
-        EmailInputFieldComponent(
+        EmailInputField(
             modifier = Modifier.width(280.dp),
             label = "Email Address",
             value = emailAddr,

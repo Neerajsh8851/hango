@@ -1,4 +1,4 @@
-package desidev.hango.ui.screens.signup
+package desidev.hango.ui.screens.signup_process.signup
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
@@ -6,8 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,8 +27,8 @@ import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.ConstraintSet
 import desidev.hango.R
-import desidev.hango.ui.components.EmailInputFieldComponent
-import desidev.hango.ui.components.PasswordInputFieldComponent
+import desidev.hango.ui.composables.EmailInputField
+import desidev.hango.ui.composables.PasswordInputFieldComponent
 import desidev.hango.ui.theme.AppTheme
 
 @Preview(showSystemUi = true)
@@ -88,7 +86,7 @@ fun SignUpContent(bloc: SignUpComponent) {
                 modifier = Modifier.layoutId("heading")
             )
 
-            EmailInputFieldComponent(
+            EmailInputField(
                 value = userEmail,
                 label = "Email Address",
                 onValueChange = {

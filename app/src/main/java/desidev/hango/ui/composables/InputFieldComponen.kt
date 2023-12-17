@@ -1,4 +1,4 @@
-package desidev.hango.ui.components
+package desidev.hango.ui.composables
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -43,7 +43,7 @@ import desidev.hango.ui.theme.AppTheme
 private fun Preview() {
     AppTheme {
         Surface {
-            EmailInputFieldComponent(
+            EmailInputField(
                 value = "Some",
                 label = "Email Address",
                 onValueChange = { newValue -> },
@@ -54,7 +54,7 @@ private fun Preview() {
 }
 
 @Composable
-fun EmailInputFieldComponent(
+fun EmailInputField(
     modifier: Modifier = Modifier,
     label: String,
     value: String,
