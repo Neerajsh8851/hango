@@ -92,7 +92,7 @@ fun EmailInputField(
             readOnly = readOnly,
             onValueChange = onValueChange,
             decorationBox = decorationBox,
-            textStyle = textStyle,
+            textStyle = textStyle.copy(color = contentColor),
             singleLine = true,
             keyboardOptions = keyboardOptions,
             keyboardActions = keyboardActions,
