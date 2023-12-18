@@ -10,7 +10,8 @@ import java.time.LocalDate
 
 sealed interface Event {
     data class UpdateName(val value: String) : Event
-
+    class UpdateDOB(val dob: LocalDate) : Event
+    class UpdateGender(val gender: Gender) : Event
 }
 
 interface ProfileComponent : Events<Event> {
@@ -35,11 +36,14 @@ class DefaultProfileComponent(context: ComponentContext) : ProfileComponent,
     override fun onEvent(event: Event) {
         when(event) {
             is Event.UpdateName -> _name.value = event.value
+            is Event.UpdateDOB -> _dob.value = event.dob
+            is Event.UpdateGender -> _gender.value = event.gender
         }
     }
 }
 
 class FakeProfileComponent : ProfileComponent {
+
     private val _name = MutableStateFlow("")
     override val name: StateFlow<String> = _name
 
@@ -52,6 +56,7 @@ class FakeProfileComponent : ProfileComponent {
     override fun onEvent(event: Event) {
         when(event) {
             is Event.UpdateName -> _name.value = event.value
+            else -> {}
         }
     }
 }
