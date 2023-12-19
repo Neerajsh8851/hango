@@ -9,4 +9,4 @@ data class User(
 )
 
 
-enum class Gender { Male, Female }
+enum class Gender { Male, Female, Other }

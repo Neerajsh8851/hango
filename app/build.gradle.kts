@@ -87,4 +87,5 @@ dependencies {
     implementation(libs.composeuisuite.ohteepee)
     implementation(libs.sheets.compose.core)
     implementation(libs.sheets.compose.calender)
+    implementation(libs.coil)
 }

@@ -12,12 +12,21 @@ sealed interface Event {
     data class UpdateName(val value: String) : Event
     class UpdateDOB(val dob: LocalDate) : Event
     class UpdateGender(val gender: Gender) : Event
+    class UploadPhoto(val photo: String): Event
+}
+
+
+sealed interface ProfilePicState {
+    data class UploadingDone(val url: String) : ProfilePicState
+    data object Uploading : ProfilePicState
+    data object NoPicture : ProfilePicState
 }
 
 interface ProfileComponent : Events<Event> {
     val name: StateFlow<String>
     val dob: StateFlow<LocalDate>
     val gender: StateFlow<Gender>
+    val profilePic: StateFlow<ProfilePicState>
 }
 
 
@@ -33,11 +42,15 @@ class DefaultProfileComponent(context: ComponentContext) : ProfileComponent,
     private val _gender = MutableStateFlow(Gender.Male)
     override val gender: StateFlow<Gender> = _gender
 
+    private val _profilePic = MutableStateFlow(ProfilePicState.NoPicture)
+    override val profilePic: StateFlow<ProfilePicState> = _profilePic
+
     override fun onEvent(event: Event) {
-        when(event) {
+        when (event) {
             is Event.UpdateName -> _name.value = event.value
             is Event.UpdateDOB -> _dob.value = event.dob
             is Event.UpdateGender -> _gender.value = event.gender
+            is Event.UploadPhoto -> TODO()
         }
     }
 }
@@ -53,10 +66,16 @@ class FakeProfileComponent : ProfileComponent {
     private val _gender = MutableStateFlow(Gender.Male)
     override val gender: StateFlow<Gender> = _gender
 
+    private val _profilePic = MutableStateFlow(ProfilePicState.NoPicture)
+    override val profilePic: StateFlow<ProfilePicState> = _profilePic
+
+
     override fun onEvent(event: Event) {
-        when(event) {
+        when (event) {
             is Event.UpdateName -> _name.value = event.value
-            else -> {}
+            is Event.UpdateDOB -> _dob.value = event.dob
+            is Event.UpdateGender -> _gender.value = event.gender
+            is Event.UploadPhoto -> TODO()
         }
     }
 }

@@ -20,6 +20,8 @@ androidGraldePlugin = "8.1.2"
 kotlinGradlePlugin = "1.9.21"
 ohTeePeeVersion = "1.0.6"
 
+coil = "2.5.0"
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGraldePlugin" }
 kotlin-plugin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlinGradlePlugin" }
@@ -52,6 +54,7 @@ ktor-serialization-gson = { module = "io.ktor:ktor-serialization-gson", version.
 
 sheets-compose-core = {module = "com.maxkeppeler.sheets-compose-dialogs:core", version.ref = "compose_sheets" }
 sheets-compose-calender = {module = "com.maxkeppeler.sheets-compose-dialogs:calendar", version.ref = "compose_sheets" }
+coil = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 
 
 
