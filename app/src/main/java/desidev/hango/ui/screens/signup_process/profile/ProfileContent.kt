@@ -1,7 +1,12 @@
 package desidev.hango.ui.screens.signup_process.profile
 
+import android.graphics.BitmapFactory
+import android.net.Uri
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,7 +21,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -32,6 +36,7 @@ import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,15 +44,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.DialogProperties
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.core.net.toFile
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.maxkeppeker.sheets.core.models.base.Header
@@ -58,6 +63,7 @@ import com.maxkeppeler.sheets.calendar.models.CalendarSelection
 import desidev.hango.R
 import desidev.hango.models.Gender
 import desidev.hango.ui.theme.AppTheme
+import java.io.ByteArrayOutputStream
 import java.time.LocalDate
 import kotlin.math.cos
 import kotlin.math.sin
@@ -77,7 +83,30 @@ fun ProfileContentPreview() {
 
 @Composable
 fun ProfileContent(bloc: ProfileComponent, modifier: Modifier = Modifier) {
+    val context = LocalContext.current
     val profilePicModel by bloc.profilePic.collectAsState()
+    var openPhotoPicker by remember { mutableStateOf(false) }
+
+    if (openPhotoPicker) {
+        PhotoPickerResult(
+            onPhotoSelected = { uri: Uri ->
+                Log.d("ProfileContent", "Photo selected${uri.path}")
+                val imageData = ByteArrayOutputStream(1024)
+                context.contentResolver.openInputStream(uri)?.use { stream ->
+//                    val buffer = ByteArray(1024)
+//                    var len = stream.read(buffer)
+//                    while (len > 0) {
+//                        imageData.write(buffer, 0, len)
+//                        len = stream.read(buffer)
+//                    }
+                    val bitmap = BitmapFactory.decodeStream(stream)
+                }
+
+            }, onDismiss = {
+                openPhotoPicker = false
+            }
+        )
+    }
 
     ConstraintLayout(
         modifier = modifier,
@@ -102,7 +131,7 @@ fun ProfileContent(bloc: ProfileComponent, modifier: Modifier = Modifier) {
                 bottom.linkTo(inputs.top)
             },
             profilePic = profilePicModel,
-            onPhotoEditClick = {}
+            onPhotoEditClick = { openPhotoPicker = true }
         )
 
         InputFields(bloc = bloc, modifier = Modifier.constrainAs(inputs) {
@@ -117,6 +146,7 @@ fun ProfileContent(bloc: ProfileComponent, modifier: Modifier = Modifier) {
                 top.linkTo(inputs.bottom, 48.dp)
             }) {
             Text(text = "Save")
+
         }
     }
 }
@@ -387,3 +417,20 @@ fun GenderInput(value: Gender, onValueChange: (Gender) -> Unit) {
     }
 }
 
+
+@Composable
+fun PhotoPickerResult(
+    onPhotoSelected: (Uri) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val singlePhotoPicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri ->
+            uri?.let { onPhotoSelected(uri) }
+            onDismiss()
+        }
+    )
+    LaunchedEffect(Unit) {
+        singlePhotoPicker.launch(PickVisualMediaRequest(mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly))
+    }
+}
