@@ -28,7 +28,7 @@ class DefaultSignUpProcess(
         childFactory = { config: Config, context: ComponentContext ->
             when(config) {
                 is Config.SignUp -> TODO()
-                Config.EmailVerification -> TODO()
+                Config.EmailAuth -> TODO()
                 Config.Profile -> TODO()
             }
         }
@@ -41,6 +41,6 @@ class DefaultSignUpProcess(
         @Parcelize
         data object Profile: Config
         @Parcelize
-        data object EmailVerification: Config
+        data object EmailAuth: Config
     }
 }

@@ -10,7 +10,7 @@ sealed class Event {
     data class UpdatePassword(val value: String): Event()
     data class UpdateConfirmPassword(val value: String): Event()
     data object SignUp: Event()
-    data object TogglePassVisibility : Event()
+    data object ToggleHidePassword : Event()
 }
 
 interface SignUpComponent : Events<Event> {
@@ -41,12 +41,16 @@ class DefaultSignUpComponent(
 
     override fun onEvent(event: Event) {
         when (event) {
-            Event.SignUp -> TODO()
-            Event.TogglePassVisibility -> TODO()
-            is Event.UpdateEmail -> TODO()
-            is Event.UpdatePassword -> TODO()
-            is Event.UpdateConfirmPassword -> TODO()
+            Event.SignUp -> registerNewAccount()
+            Event.ToggleHidePassword -> _hidePassword.value = !_hidePassword.value
+            is Event.UpdateEmail -> _userEmail.value = event.value
+            is Event.UpdatePassword -> _userPassword.value = event.value
+            is Event.UpdateConfirmPassword -> _confirmPassword.value = event.value
         }
+    }
+    private fun registerNewAccount() {
+        if (userPassword != confirmPassword) return
+
     }
 }
 

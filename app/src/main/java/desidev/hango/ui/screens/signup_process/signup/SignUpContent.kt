@@ -102,7 +102,7 @@ fun SignUpContent(bloc: SignUpComponent) {
                 hidePassword = hidePassword,
                 leadingIcon = {
                     PasswordVisibilityToggle(passwordHidden = hidePassword, onToggle = {
-                        bloc.onEvent(Event.TogglePassVisibility)
+                        bloc.onEvent(Event.ToggleHidePassword)
                     })
                 },
                 onValueChange = {

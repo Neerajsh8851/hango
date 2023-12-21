@@ -1,10 +1,8 @@
 package desidev.hango.api.impl
 
-import desidev.hango.api.HangoApi
-import desidev.hango.api.model.JwtToken
+import desidev.hango.api.HangoAuthApi
 import desidev.hango.api.model.LocalDateTypeAdapter
-import desidev.hango.api.model.UserCredentials
-import desidev.hango.api.model.UserSignUp
+import desidev.hango.api.model.UserCredential
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.cio.CIO
@@ -18,7 +16,7 @@ import io.ktor.serialization.gson.gson
 import kotlinx.coroutines.CancellationException
 import java.lang.RuntimeException
 
-class DefualtHangoApi(private val baseUrl: String) : HangoApi {
+class DefaultHangoApi(private val baseUrl: String) : HangoAuthApi {
 
     private val client by lazy {
         HttpClient(CIO) {
@@ -30,7 +28,7 @@ class DefualtHangoApi(private val baseUrl: String) : HangoApi {
         }
     }
 
-    override suspend fun userSignIn(payload: UserCredentials): Result<JwtToken> {
+    override suspend fun userSignIn(payload: UserCredential): Result<String> {
        try {
            val response = client.post("$baseUrl/user/sign-in") {
                contentType(ContentType.Application.Json)
@@ -38,7 +36,7 @@ class DefualtHangoApi(private val baseUrl: String) : HangoApi {
            }
 
            return if (response.status == HttpStatusCode.OK) {
-               val jwtToken = response.body<JwtToken>()
+               val jwtToken = response.body<String>()
                Result.success(jwtToken)
            } else {
                throw RuntimeException("Invalid credentials!")
@@ -48,25 +46,5 @@ class DefualtHangoApi(private val baseUrl: String) : HangoApi {
            if (ex is CancellationException) throw ex
            return Result.failure(ex)
        }
-    }
-
-
-    override suspend fun userSignUp(payload: UserSignUp): Result<Unit> {
-        return try {
-            val response = client.post("$baseUrl/user/sign-up") {
-                contentType(ContentType.Application.Json)
-                setBody(payload)
-            }
-
-            if (response.status == HttpStatusCode.OK) {
-                Result.success(Unit)
-            }  else {
-                throw RuntimeException("Couldn't sign up'")
-            }
-
-        }catch (ex: Exception) {
-            if (ex is CancellationException) throw ex
-            return Result.failure(ex)
-        }
     }
 }
