@@ -37,7 +37,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,20 +47,19 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.core.net.toFile
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.arkivanov.decompose.extensions.compose.jetpack.subscribeAsState
 import com.maxkeppeker.sheets.core.models.base.Header
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
 import com.maxkeppeler.sheets.calendar.CalendarDialog
 import com.maxkeppeler.sheets.calendar.models.CalendarConfig
 import com.maxkeppeler.sheets.calendar.models.CalendarSelection
 import desidev.hango.R
-import desidev.hango.models.Gender
+import desidev.hango.model.Gender
 import desidev.hango.ui.theme.AppTheme
 import java.io.ByteArrayOutputStream
 import java.time.LocalDate
@@ -84,7 +82,7 @@ fun ProfileContentPreview() {
 @Composable
 fun ProfileContent(bloc: ProfileComponent, modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    val profilePicModel by bloc.profilePic.collectAsState()
+    val profilePicState by bloc.profilePic.subscribeAsState()
     var openPhotoPicker by remember { mutableStateOf(false) }
 
     if (openPhotoPicker) {
@@ -130,7 +128,7 @@ fun ProfileContent(bloc: ProfileComponent, modifier: Modifier = Modifier) {
                 top.linkTo(headingTxt.bottom)
                 bottom.linkTo(inputs.top)
             },
-            profilePic = profilePicModel,
+            profilePic = profilePicState,
             onPhotoEditClick = { openPhotoPicker = true }
         )
 
@@ -156,7 +154,6 @@ fun ProfileContent(bloc: ProfileComponent, modifier: Modifier = Modifier) {
 fun ProfilePic(
     modifier: Modifier = Modifier, profilePic: ProfilePicState, onPhotoEditClick: () -> Unit
 ) {
-
     @Composable
     fun ProfileLayout(modifier: Modifier, content: @Composable () -> Unit) {
         Layout(content = content, modifier = modifier) { measurables, constraints ->
@@ -227,9 +224,9 @@ fun ProfilePic(
 
 @Composable
 private fun InputFields(modifier: Modifier = Modifier, bloc: ProfileComponent) {
-    val name by bloc.name.collectAsState()
-    val dob by bloc.dob.collectAsState()
-    val gender by bloc.gender.collectAsState()
+    val name by bloc.name.subscribeAsState()
+    val dob by bloc.dob.subscribeAsState()
+    val gender by bloc.gender.subscribeAsState()
 
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(20.dp)) {
         RoundedTextField(

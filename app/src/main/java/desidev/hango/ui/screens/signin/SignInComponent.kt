@@ -30,7 +30,7 @@ class DefaultSignInComponent(context: ComponentContext) : SignInComponent,
     override val hidePassword: StateFlow<Boolean>
         get() = TODO("Not yet implemented")
 
-    override fun onEvent(event: SignInComponent.Event) {
+    override fun onEvent(e: SignInComponent.Event) {
     }
 }
 
@@ -45,18 +45,18 @@ class FakeSignInComponent : SignInComponent {
     private val _hidePassword = MutableStateFlow(false)
     override val hidePassword: StateFlow<Boolean> = _hidePassword
 
-    override fun onEvent(event: SignInComponent.Event) {
-        when (event) {
+    override fun onEvent(e: SignInComponent.Event) {
+        when (e) {
             SignInComponent.Event.TogglePasswordVisibility -> {
                 _hidePassword.value = hidePassword.value.not()
             }
 
             is SignInComponent.Event.UpdateEmail -> {
-                _userEmail.value = event.value
+                _userEmail.value = e.value
             }
 
             is SignInComponent.Event.UpdatePassword -> {
-                _userPassword.value = event.value
+                _userPassword.value = e.value
             }
 
             else -> {}

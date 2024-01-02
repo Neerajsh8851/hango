@@ -27,9 +27,9 @@ class DefaultAuthComponent(
 
     private val _otpValue = MutableStateFlow("")
     override val optValue: StateFlow<String> = _otpValue
-    override fun onEvent(event: Event) {
-        when(event) {
-            is Event.UpdateOtp -> _otpValue.value = event.value
+    override fun onEvent(e: Event) {
+        when(e) {
+            is Event.UpdateOtp -> _otpValue.value = e.value
             Event.OnVerifyBtnClick -> TODO()
             Event.OnSendOtp -> TODO()
         }
@@ -42,9 +42,9 @@ class FakeAuthComponent: AuthComponent {
 
     private val _otpValue = MutableStateFlow("")
     override val optValue: StateFlow<String> = _otpValue
-    override fun onEvent(event: Event) {
-        when(event) {
-            is Event.UpdateOtp -> _otpValue.value = event.value
+    override fun onEvent(e: Event) {
+        when(e) {
+            is Event.UpdateOtp -> _otpValue.value = e.value
             Event.OnVerifyBtnClick -> TODO()
             Event.OnSendOtp -> TODO()
         }

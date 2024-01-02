@@ -23,7 +23,7 @@ interface Events<E> {
      * Invoked when a user event occurs. Implementers should provide logic
      * to handle the specific event defined by the generic type E.
      *
-     * @param event The instance of the event to be processed.
+     * @param e The instance of the event to be processed.
      */
-    fun onEvent(event: E)
+    fun onEvent(e: E)
 }
