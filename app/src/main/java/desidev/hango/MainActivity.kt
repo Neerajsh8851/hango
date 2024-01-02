@@ -6,7 +6,7 @@ import androidx.activity.compose.setContent
 import com.arkivanov.decompose.ExperimentalDecomposeApi
 import com.arkivanov.decompose.retainedComponent
 import desidev.hango.ui.screens.signup_process.DefaultSignUpProcess
-import desidev.hango.ui.screens.signup_process.signup.SignUpProcessContent
+import desidev.hango.ui.screens.signup_process.SignUpProcessContent
 import desidev.hango.ui.theme.AppTheme
 
 

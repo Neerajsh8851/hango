@@ -25,5 +25,5 @@ interface Events<E> {
      *
      * @param e The instance of the event to be processed.
      */
-    fun onEvent(e: E)
+    fun sendEvent(e: E)
 }

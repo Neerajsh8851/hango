@@ -131,7 +131,7 @@ fun AuthContent(component: AuthComponent, modifier: Modifier = Modifier) {
             OtpInput(
                 otpValue = otpValue,
                 onValueChange = { newValue, isValid ->
-                    component.onEvent(Event.UpdateOtp(newValue))
+                    component.sendEvent(Event.UpdateOtp(newValue))
                     if (isValid) {
                         Log.d("AuthContent", "Entered a valid otp")
                     }
@@ -145,7 +145,7 @@ fun AuthContent(component: AuthComponent, modifier: Modifier = Modifier) {
                 modifier = Modifier.layoutId(sendAgainBtnId)
             ) {
                 Text(text = "Did not get otp?")
-                TextButton(onClick = { component.onEvent(Event.OnSendOtp) }) {
+                TextButton(onClick = { component.sendEvent(Event.OnSendOtp) }) {
                     Text(text = "Send again")
                 }
             }

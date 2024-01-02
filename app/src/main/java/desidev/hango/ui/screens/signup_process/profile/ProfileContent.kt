@@ -19,9 +19,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -33,6 +30,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.typography
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -53,16 +51,11 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.arkivanov.decompose.extensions.compose.jetpack.subscribeAsState
-import com.maxkeppeker.sheets.core.models.base.Header
-import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
-import com.maxkeppeler.sheets.calendar.CalendarDialog
-import com.maxkeppeler.sheets.calendar.models.CalendarConfig
-import com.maxkeppeler.sheets.calendar.models.CalendarSelection
 import desidev.hango.R
 import desidev.hango.model.Gender
+import desidev.hango.ui.composables.DateOfBirthInput
 import desidev.hango.ui.theme.AppTheme
 import java.io.ByteArrayOutputStream
-import java.time.LocalDate
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -132,7 +125,7 @@ fun ProfileContent(component: ProfileComponent, modifier: Modifier = Modifier) {
             onPhotoEditClick = { openPhotoPicker = true }
         )
 
-        InputFields(bloc = component, modifier = Modifier.constrainAs(inputs) {
+        InputFields(component = component, modifier = Modifier.constrainAs(inputs) {
             centerHorizontallyTo(parent)
             centerVerticallyTo(parent)
         })
@@ -152,7 +145,7 @@ fun ProfileContent(component: ProfileComponent, modifier: Modifier = Modifier) {
 
 @Composable
 fun ProfilePic(
-    modifier: Modifier = Modifier, profilePic: ProfilePicState, onPhotoEditClick: () -> Unit
+    modifier: Modifier = Modifier, profilePic: ProfilePicState, onPhotoEditClick: () -> Unit,
 ) {
     @Composable
     fun ProfileLayout(modifier: Modifier, content: @Composable () -> Unit) {
@@ -223,120 +216,27 @@ fun ProfilePic(
 
 
 @Composable
-private fun InputFields(modifier: Modifier = Modifier, bloc: ProfileComponent) {
-    val name by bloc.name.subscribeAsState()
-    val dob by bloc.dob.subscribeAsState()
-    val gender by bloc.gender.subscribeAsState()
+private fun InputFields(modifier: Modifier = Modifier, component: ProfileComponent) {
+    val name by component.name.subscribeAsState()
+    val dob by component.dob.subscribeAsState()
+    val gender by component.gender.subscribeAsState()
 
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(20.dp)) {
-        RoundedTextField(
+        OutlinedTextField(
             value = name,
-            onValueChange = { bloc.onEvent(Event.UpdateName(it)) },
-            label = "Name",
-            hint = "your name"
+            onValueChange = { component.sendEvent(Event.UpdateName(it)) },
+            label = { Text(text = "Name") },
+            singleLine = true
         )
 
-        DOBInput(value = dob, onDateSelect = { bloc.onEvent(Event.UpdateDOB(it)) })
+        DateOfBirthInput(selectedDate = dob, onDateSelected = { component.sendEvent(Event.UpdateDOB(it)) })
 
-        GenderInput(value = gender, onValueChange = { bloc.onEvent(Event.UpdateGender(it)) })
+        OutlinedTextField(value = dob.toString(), onValueChange = {
+
+        })
+
+        GenderInput(value = gender, onValueChange = { component.sendEvent(Event.UpdateGender(it)) })
     }
-}
-
-
-@Composable
-fun RoundedTextField(
-    value: String, onValueChange: (String) -> Unit, label: String = "", hint: String = ""
-) {
-    Column {
-        Text(
-            text = label, style = typography.labelLarge.copy(color = colorScheme.onSurface)
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-
-        val contentTypo = typography.bodyMedium
-
-        // user name field
-        BasicTextField(value = value,
-            onValueChange = onValueChange,
-            singleLine = true,
-            textStyle = contentTypo,
-            decorationBox = { textContent ->
-                Surface(
-                    shape = RoundedCornerShape(50.dp), color = colorScheme.surfaceContainer
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(280.dp, 48.dp)
-                            .padding(horizontal = 16.dp),
-                        contentAlignment = Alignment.CenterStart,
-                    ) {
-                        textContent()
-                        if (value.isEmpty()) {
-                            Text(
-                                text = hint, style = contentTypo.copy(color = colorScheme.outline)
-                            )
-                        }
-                    }
-                }
-            })
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun DOBInput(value: LocalDate, onDateSelect: (LocalDate) -> Unit) {
-    val useCaseState = rememberUseCaseState()
-
-
-    Column {
-        Text(
-            text = "Your date of birth",
-            style = typography.labelLarge.copy(color = colorScheme.onSurface)
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Surface(shape = RoundedCornerShape(50.dp), color = colorScheme.surfaceContainer) {
-            Box(
-                modifier = Modifier.size(280.dp, 48.dp),
-            ) {
-                Text(
-                    text = value.toString(),
-                    style = typography.bodyMedium,
-                    modifier = Modifier
-                        .align(
-                            Alignment.CenterStart
-                        )
-                        .padding(start = 16.dp)
-                )
-
-                IconButton(
-                    onClick = { useCaseState.show() },
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .padding(end = 8.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.DateRange,
-                        contentDescription = "Choose date icon",
-                    )
-                }
-            }
-        }
-    }
-
-    val dateRange = (LocalDate.now().minusYears(70))..LocalDate.now().minusYears(18)
-
-    // date picker dialog
-    CalendarDialog(
-        state = useCaseState,
-        header = Header.Default(title = "Date of birth"),
-        config = CalendarConfig(
-            monthSelection = true, yearSelection = true, boundary = dateRange
-        ),
-        selection = CalendarSelection.Date { newDate ->
-            onDateSelect(newDate)
-        }
-    )
 }
 
 
@@ -418,7 +318,7 @@ fun GenderInput(value: Gender, onValueChange: (Gender) -> Unit) {
 @Composable
 fun PhotoPickerResult(
     onPhotoSelected: (Uri) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     val singlePhotoPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),

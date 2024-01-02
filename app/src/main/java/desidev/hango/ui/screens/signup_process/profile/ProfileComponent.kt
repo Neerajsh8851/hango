@@ -59,7 +59,7 @@ class DefaultProfileComponent(
     private val profileUrlCallback: OnProfilePhotoSelect,
 ) : ProfileComponent,
     ComponentContext by context {
-    override fun onEvent(e: Event) = when (e) {
+    override fun sendEvent(e: Event) = when (e) {
         is Event.UpdateName -> nameCallback.onUpdateName(e.value)
         is Event.UpdateDOB -> dobCallback.onUpdateDob(e.dob)
         is Event.UpdateGender -> genderCallback.onUpdateGender(e.gender)
@@ -82,7 +82,7 @@ class FakeProfileComponent : ProfileComponent {
     override val profilePic: Value<ProfilePicState> = _profilePic
 
 
-    override fun onEvent(e: Event) {
+    override fun sendEvent(e: Event) {
         when (e) {
             is Event.UpdateName -> _name.value = e.value
             is Event.UpdateDOB -> _dob.value = e.dob

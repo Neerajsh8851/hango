@@ -45,7 +45,7 @@ class DefaultSignUpComponent(
     override val hidePassword: Value<Boolean> = _hidePassword
 
 
-    override fun onEvent(e: Event) = when (e) {
+    override fun sendEvent(e: Event) = when (e) {
         Event.SubmitClick -> onSubmitClick()
         Event.ToggleHidePassword -> _hidePassword.value = !_hidePassword.value
         is Event.UpdateEmail -> onEmailUpdate.updateEmail(e.value)
@@ -73,6 +73,6 @@ class FakeSignUpComponent : SignUpComponent {
     private val _confirmPassword = MutableValue("9890808")
     override val confirmPassword: Value<String> = _confirmPassword
 
-    override fun onEvent(e: Event) {
+    override fun sendEvent(e: Event) {
     }
 }

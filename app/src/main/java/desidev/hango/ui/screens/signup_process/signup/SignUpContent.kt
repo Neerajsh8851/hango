@@ -12,6 +12,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -19,6 +20,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -27,8 +30,6 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.ConstraintSet
 import com.arkivanov.decompose.extensions.compose.jetpack.subscribeAsState
 import desidev.hango.R
-import desidev.hango.ui.composables.EmailInputField
-import desidev.hango.ui.composables.PasswordInputFieldComponent
 import desidev.hango.ui.theme.AppTheme
 
 @Preview(showSystemUi = true)
@@ -86,47 +87,50 @@ fun SignUpContent(component: SignUpComponent) {
                 modifier = Modifier.layoutId("heading")
             )
 
-            EmailInputField(
+            OutlinedTextField(
                 value = userEmail,
-                label = "Email Address",
+                label = { Text(text = "Email") },
                 onValueChange = {
-                    component.onEvent(Event.UpdateEmail(it))
+                    component.sendEvent(Event.UpdateEmail(it))
                 },
                 modifier = Modifier
                     .padding(bottom = 20.dp)
                     .layoutId("email")
             )
 
-            PasswordInputFieldComponent(
+            OutlinedTextField(
+                label = { Text(text = "Password") },
                 value = userPass,
-                hidePassword = hidePassword,
-                leadingIcon = {
+                onValueChange = {
+                    component.sendEvent(Event.UpdatePassword(it))
+                },
+                singleLine = true,
+                trailingIcon = {
                     PasswordVisibilityToggle(passwordHidden = hidePassword, onToggle = {
-                        component.onEvent(Event.ToggleHidePassword)
+                        component.sendEvent(Event.ToggleHidePassword)
                     })
                 },
-                onValueChange = {
-                    component.onEvent(Event.UpdatePassword(it))
-                },
+                visualTransformation = if (hidePassword) VisualTransformation.None else PasswordVisualTransformation(),
                 modifier = Modifier
                     .padding(bottom = 20.dp)
                     .layoutId("password")
             )
 
 
-            PasswordInputFieldComponent(
+            OutlinedTextField(
                 value = confirmPass,
-                label = "Confirm Password",
-                hidePassword = hidePassword,
-                leadingIcon = { },
+                label = { Text(text = "Confirm password") },
                 onValueChange = {
-                    component.onEvent(Event.UpdateConfirmPassword(it))
+                    component.sendEvent(Event.UpdateConfirmPassword(it))
                 },
+                visualTransformation = if (hidePassword) VisualTransformation.None else PasswordVisualTransformation(),
                 modifier = Modifier.layoutId("confirmPass")
             )
 
             BottomContent(
-                onSubmitClick = {},
+                onSubmitClick = {
+                    component.sendEvent(Event.SubmitClick)
+                },
                 modifier = Modifier.layoutId("bottomContent")
             )
         }
@@ -138,7 +142,7 @@ fun SignUpContent(component: SignUpComponent) {
 fun PasswordVisibilityToggle(
     modifier: Modifier = Modifier,
     passwordHidden: Boolean,
-    onToggle: () -> Unit
+    onToggle: () -> Unit,
 ) {
     val iconPainterResource =
         if (passwordHidden) {
@@ -156,11 +160,10 @@ fun PasswordVisibilityToggle(
 }
 
 
-
 @Composable
 private fun BottomContent(
     modifier: Modifier,
-    onSubmitClick: () -> Unit
+    onSubmitClick: () -> Unit,
 ) {
     Column(
         modifier = modifier.padding(bottom = 20.dp),

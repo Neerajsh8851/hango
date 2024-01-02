@@ -74,10 +74,10 @@ fun SignInContent(bloc: SignInComponent) {
                 emailAddr = emailAddr,
                 password = password,
                 hidePassword = hidePassword,
-                onEmailChange = { newValue -> bloc.onEvent(Event.UpdateEmail(newValue)) },
-                onPasswordChange = { newValue -> bloc.onEvent(Event.UpdatePassword(newValue)) },
-                onForgetPasswordClick = { bloc.onEvent(Event.ForgetPassClick) },
-                passwordVisibilityToggle = { bloc.onEvent(Event.TogglePasswordVisibility) },
+                onEmailChange = { newValue -> bloc.sendEvent(Event.UpdateEmail(newValue)) },
+                onPasswordChange = { newValue -> bloc.sendEvent(Event.UpdatePassword(newValue)) },
+                onForgetPasswordClick = { bloc.sendEvent(Event.ForgetPassClick) },
+                passwordVisibilityToggle = { bloc.sendEvent(Event.TogglePasswordVisibility) },
                 modifier = Modifier.constrainAs(inputsAndOps) {
                     centerVerticallyTo(parent)
                     centerHorizontallyTo(parent)
@@ -91,10 +91,10 @@ fun SignInContent(bloc: SignInComponent) {
                     centerHorizontallyTo(parent)
                 },
                 onSignInClick = {
-                    bloc.onEvent(Event.SignInClick)
+                    bloc.sendEvent(Event.SignInClick)
                 },
                 onSignUpClick = {
-                    bloc.onEvent(Event.SignUpClick)
+                    bloc.sendEvent(Event.SignUpClick)
                 }
             )
         }
