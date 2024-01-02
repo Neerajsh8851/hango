@@ -5,7 +5,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import com.arkivanov.decompose.ExperimentalDecomposeApi
 import com.arkivanov.decompose.retainedComponent
-import desidev.hango.ui.navigation.RootComponent
+import desidev.hango.ui.screens.signup_process.DefaultSignUpProcess
+import desidev.hango.ui.screens.signup_process.signup.SignUpProcessContent
 import desidev.hango.ui.theme.AppTheme
 
 
@@ -14,11 +15,13 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val root = retainedComponent { RootComponent(it) }
+        val root = retainedComponent {
+            DefaultSignUpProcess(it)
+        }
 
         setContent {
             AppTheme {
-
+                SignUpProcessContent(component = root)
             }
         }
     }

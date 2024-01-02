@@ -1,4 +1,4 @@
-package desidev.hango.ui.navigation
+package desidev.hango.ui
 
 import com.arkivanov.essenty.lifecycle.LifecycleOwner
 import com.arkivanov.essenty.lifecycle.doOnDestroy

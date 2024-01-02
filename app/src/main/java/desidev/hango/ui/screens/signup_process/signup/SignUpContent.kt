@@ -13,7 +13,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -26,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.ConstraintSet
+import com.arkivanov.decompose.extensions.compose.jetpack.subscribeAsState
 import desidev.hango.R
 import desidev.hango.ui.composables.EmailInputField
 import desidev.hango.ui.composables.PasswordInputFieldComponent
@@ -41,11 +41,11 @@ fun Preview() {
 }
 
 @Composable
-fun SignUpContent(bloc: SignUpComponent) {
-    val userEmail by bloc.userEmail.collectAsState()
-    val userPass by bloc.userPassword.collectAsState()
-    val confirmPass by bloc.confirmPassword.collectAsState()
-    val hidePassword by bloc.hidePassword.collectAsState()
+fun SignUpContent(component: SignUpComponent) {
+    val userEmail by component.userEmail.subscribeAsState()
+    val userPass by component.userPassword.subscribeAsState()
+    val confirmPass by component.confirmPassword.subscribeAsState()
+    val hidePassword by component.hidePassword.subscribeAsState()
 
     Surface(modifier = Modifier.fillMaxSize()) {
         val constraintSet = ConstraintSet {
@@ -90,7 +90,7 @@ fun SignUpContent(bloc: SignUpComponent) {
                 value = userEmail,
                 label = "Email Address",
                 onValueChange = {
-                    bloc.onEvent(Event.UpdateEmail(it))
+                    component.onEvent(Event.UpdateEmail(it))
                 },
                 modifier = Modifier
                     .padding(bottom = 20.dp)
@@ -102,11 +102,11 @@ fun SignUpContent(bloc: SignUpComponent) {
                 hidePassword = hidePassword,
                 leadingIcon = {
                     PasswordVisibilityToggle(passwordHidden = hidePassword, onToggle = {
-                        bloc.onEvent(Event.ToggleHidePassword)
+                        component.onEvent(Event.ToggleHidePassword)
                     })
                 },
                 onValueChange = {
-                    bloc.onEvent(Event.UpdatePassword(it))
+                    component.onEvent(Event.UpdatePassword(it))
                 },
                 modifier = Modifier
                     .padding(bottom = 20.dp)
@@ -120,13 +120,13 @@ fun SignUpContent(bloc: SignUpComponent) {
                 hidePassword = hidePassword,
                 leadingIcon = { },
                 onValueChange = {
-                    bloc.onEvent(Event.UpdateConfirmPassword(it))
+                    component.onEvent(Event.UpdateConfirmPassword(it))
                 },
                 modifier = Modifier.layoutId("confirmPass")
             )
 
             BottomContent(
-                onSignUpClick = {},
+                onSubmitClick = {},
                 modifier = Modifier.layoutId("bottomContent")
             )
         }
@@ -160,7 +160,7 @@ fun PasswordVisibilityToggle(
 @Composable
 private fun BottomContent(
     modifier: Modifier,
-    onSignUpClick: () -> Unit
+    onSubmitClick: () -> Unit
 ) {
     Column(
         modifier = modifier.padding(bottom = 20.dp),
@@ -169,11 +169,11 @@ private fun BottomContent(
     ) {
 
         Button(
-            onClick = onSignUpClick,
+            onClick = onSubmitClick,
             modifier = Modifier.width(280.dp)
         ) {
             Text(
-                text = "Sign up",
+                text = "Submit",
                 modifier = Modifier.animateContentSize()
             )
         }

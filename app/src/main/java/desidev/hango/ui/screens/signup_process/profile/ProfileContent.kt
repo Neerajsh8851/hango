@@ -73,16 +73,16 @@ fun ProfileContentPreview() {
     AppTheme {
         Surface {
             ProfileContent(
-                bloc = remember { FakeProfileComponent() }, modifier = Modifier.fillMaxSize()
+                component = remember { FakeProfileComponent() }, modifier = Modifier.fillMaxSize()
             )
         }
     }
 }
 
 @Composable
-fun ProfileContent(bloc: ProfileComponent, modifier: Modifier = Modifier) {
+fun ProfileContent(component: ProfileComponent, modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    val profilePicState by bloc.profilePic.subscribeAsState()
+    val profilePicState by component.profilePic.subscribeAsState()
     var openPhotoPicker by remember { mutableStateOf(false) }
 
     if (openPhotoPicker) {
@@ -132,7 +132,7 @@ fun ProfileContent(bloc: ProfileComponent, modifier: Modifier = Modifier) {
             onPhotoEditClick = { openPhotoPicker = true }
         )
 
-        InputFields(bloc = bloc, modifier = Modifier.constrainAs(inputs) {
+        InputFields(bloc = component, modifier = Modifier.constrainAs(inputs) {
             centerHorizontallyTo(parent)
             centerVerticallyTo(parent)
         })

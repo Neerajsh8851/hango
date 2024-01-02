@@ -25,7 +25,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -40,15 +39,15 @@ import desidev.hango.ui.composables.OtpInput
 @Composable
 fun AuthContentPreview() {
     AppTheme {
-        AuthContent(bloc = remember { FakeAuthComponent() }, modifier = Modifier.fillMaxSize())
+        AuthContent(component = remember { FakeAuthComponent() }, modifier = Modifier.fillMaxSize())
     }
 }
 
 @OptIn(ExperimentalTextApi::class)
 @Composable
-fun AuthContent(bloc: AuthComponent, modifier: Modifier = Modifier) {
-    val userEmail = bloc.userEmail
-    val otpValue by bloc.optValue.collectAsState()
+fun AuthContent(component: AuthComponent, modifier: Modifier = Modifier) {
+    val userEmail = component.userEmail
+    val otpValue by component.optValue.collectAsState()
     val uriHandler = LocalUriHandler.current
 
     Surface(modifier = modifier) {
@@ -132,7 +131,7 @@ fun AuthContent(bloc: AuthComponent, modifier: Modifier = Modifier) {
             OtpInput(
                 otpValue = otpValue,
                 onValueChange = { newValue, isValid ->
-                    bloc.onEvent(Event.UpdateOtp(newValue))
+                    component.onEvent(Event.UpdateOtp(newValue))
                     if (isValid) {
                         Log.d("AuthContent", "Entered a valid otp")
                     }
@@ -146,7 +145,7 @@ fun AuthContent(bloc: AuthComponent, modifier: Modifier = Modifier) {
                 modifier = Modifier.layoutId(sendAgainBtnId)
             ) {
                 Text(text = "Did not get otp?")
-                TextButton(onClick = { bloc.onEvent(Event.OnSendOtp) }) {
+                TextButton(onClick = { component.onEvent(Event.OnSendOtp) }) {
                     Text(text = "Send again")
                 }
             }

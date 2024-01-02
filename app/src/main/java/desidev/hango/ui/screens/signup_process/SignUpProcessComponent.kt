@@ -77,11 +77,11 @@ class DefaultSignUpProcess(
 
             Config.Profile -> Child.Profile(
                 DefaultProfileComponent(
-                    context,
-                    name,
-                    dob,
-                    gender,
-                    profilePic,
+                    context = context,
+                    name = name,
+                    dob = dob,
+                    gender = gender,
+                    profilePic = profilePic,
                     nameCallback = { name.value = it },
                     dobCallback = { dob.value = it},
                     genderCallback = {gender.value = it},
@@ -94,7 +94,6 @@ class DefaultSignUpProcess(
             Config.EmailAuth -> Child.Auth(
                 DefaultAuthComponent(context, userEmail.value)
             )
-
         }
     }
 }
