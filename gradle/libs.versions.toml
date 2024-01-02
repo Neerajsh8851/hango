@@ -4,7 +4,7 @@ decompose = "2.2.0"
 desugar_jdk_libs = "2.0.3"
 kotlinCompilerExtensionVersion = "1.5.6"
 androidxLifeCycle = "2.6.2"
-activityCompose = "1.7.2"
+activityCompose = "1.8.2"
 composeBom = "2023.10.01"
 androidx_material3 = "1.2.0-alpha08"
 #junit = "4.13.2"
@@ -21,10 +21,12 @@ kotlinGradlePlugin = "1.9.21"
 ohTeePeeVersion = "1.0.6"
 
 coil = "2.5.0"
+org-jetbrains-kotlin-jvm = "1.9.21"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGraldePlugin" }
 kotlin-plugin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlinGradlePlugin" }
+org-jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "org-jetbrains-kotlin-jvm" }
 
 
 [libraries]

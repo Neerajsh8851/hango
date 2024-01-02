@@ -54,6 +54,8 @@ android {
 }
 
 dependencies {
+    implementation(project(":kotlinutils"))
+
     implementation(libs.androidx.ktx)
     implementation(libs.androidx.lifecyle)
     implementation(libs.androidx.composeActivity)
