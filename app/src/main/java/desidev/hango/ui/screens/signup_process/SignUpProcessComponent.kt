@@ -83,8 +83,8 @@ class DefaultSignUpProcess(
                     gender = gender,
                     profilePic = profilePic,
                     nameCallback = { name.value = it },
-                    dobCallback = { dob.value = it},
-                    genderCallback = {gender.value = it},
+                    dobCallback = { dob.value = it },
+                    genderCallback = { gender.value = it },
                     profileUrlCallback = { uri ->
                         // Todo: upload this photo
                     }
@@ -92,7 +92,11 @@ class DefaultSignUpProcess(
             )
 
             Config.EmailAuth -> Child.Auth(
-                DefaultAuthComponent(context, userEmail.value)
+                DefaultAuthComponent(
+                    context,
+                    userEmail,
+                    otpSendRequestHandle = { }
+                )
             )
         }
     }

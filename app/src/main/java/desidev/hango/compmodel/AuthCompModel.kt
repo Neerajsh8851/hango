@@ -3,9 +3,9 @@ package desidev.hango.compmodel
 import com.arkivanov.decompose.value.Value
 import desidev.hango.model.Profile
 import desidev.hango.api.model.UserCredential
-import desidev.onevent.OnSignIn
+import desidev.hango.handler.SignInRequestHandle
 
-interface AuthCompModel: OnSignIn {
+interface AuthCompModel: SignInRequestHandle {
     val user : Value<Profile>
     fun getCurrentUserToken(): String
     fun signOut()
@@ -24,6 +24,6 @@ class DefaultAuthCompModel : AuthCompModel {
         TODO("Not yet implemented")
     }
 
-    override fun onSignIn(credential: UserCredential) {
+    override fun requestSignIn(credential: UserCredential) {
     }
 }

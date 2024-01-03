@@ -3,23 +3,21 @@ package desidev.hango.ui.screens.signup_process.signup
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
-import desidev.hango.ui.screens.Events
-import desidev.onevent.OnEmailUpdate
-import desidev.onevent.OnPasswordUpdate
+import desidev.hango.handler.EmailUpdateHandle
+import desidev.hango.handler.PasswordUpdateHandle
 
-sealed class Event {
-    data class UpdateEmail(val value: String) : Event()
-    data class UpdatePassword(val value: String) : Event()
-    data class UpdateConfirmPassword(val value: String) : Event()
-    data object SubmitClick : Event()
-    data object ToggleHidePassword : Event()
-}
 
-interface SignUpComponent : Events<Event> {
+interface SignUpComponent  {
     val userEmail: Value<String>
     val userPassword: Value<String>
     val hidePassword: Value<Boolean>
     val confirmPassword: Value<String>
+
+    fun setEmail(email: String)
+    fun setPassword(password: String)
+    fun setConfirmPassword(password: String)
+
+    fun onSubmit()
 }
 
 
@@ -32,28 +30,30 @@ class DefaultSignUpComponent(
     context: ComponentContext,
     override val userEmail: Value<String>,
     override val userPassword: Value<String>,
-    private val onEmailUpdate: OnEmailUpdate,
-    private val onPasswordUpdate: OnPasswordUpdate,
+    private val onEmailUpdate: EmailUpdateHandle,
+    private val onPasswordUpdate: PasswordUpdateHandle,
     private val onSubmitClick: OnSubmitClick,
 ) : SignUpComponent,
     ComponentContext by context {
 
     private val _confirmPassword = MutableValue("9890808")
     override val confirmPassword: Value<String> = _confirmPassword
+    override fun setEmail(email: String) {
+        onEmailUpdate.updateEmail(email)
+    }
+
+    override fun setPassword(password: String) {
+        onPasswordUpdate.updatePassword(password)
+    }
+
+    override fun setConfirmPassword(password: String) {
+        _confirmPassword.value = password
+    }
 
     private val _hidePassword = MutableValue(false)
     override val hidePassword: Value<Boolean> = _hidePassword
 
-
-    override fun sendEvent(e: Event) = when (e) {
-        Event.SubmitClick -> onSubmitClick()
-        Event.ToggleHidePassword -> _hidePassword.value = !_hidePassword.value
-        is Event.UpdateEmail -> onEmailUpdate.updateEmail(e.value)
-        is Event.UpdatePassword -> onPasswordUpdate.updatePassword(e.value)
-        is Event.UpdateConfirmPassword -> _confirmPassword.value = e.value
-    }
-
-    private fun onSubmitClick() {
+    override fun onSubmit() {
         if (userPassword == confirmPassword) {
             onSubmitClick.onSubmit()
         }
@@ -72,7 +72,19 @@ class FakeSignUpComponent : SignUpComponent {
 
     private val _confirmPassword = MutableValue("9890808")
     override val confirmPassword: Value<String> = _confirmPassword
+    override fun setEmail(email: String) {
+        _userEmail.value = email
+    }
 
-    override fun sendEvent(e: Event) {
+    override fun setPassword(password: String) {
+        _userPassword.value = password
+    }
+
+    override fun setConfirmPassword(password: String) {
+        _confirmPassword.value = password
+    }
+
+    override fun onSubmit() {
+
     }
 }

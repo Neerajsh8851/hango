@@ -1,23 +1,20 @@
 package desidev.hango.ui.screens.signin
 
 import com.arkivanov.decompose.ComponentContext
-import desidev.hango.ui.screens.Events
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-interface SignInComponent : Events<SignInComponent.Event> {
+interface SignInComponent {
     val userEmail: StateFlow<String>
     val userPassword: StateFlow<String>
     val hidePassword: StateFlow<Boolean>
 
-    sealed class Event {
-        data class UpdateEmail(val value: String) : Event()
-        data class UpdatePassword(val value: String) : Event()
-        data object TogglePasswordVisibility : Event()
-        data object ForgetPassClick : Event()
-        data object SignUpClick : Event()
-        data object SignInClick : Event()
-    }
+    fun updateEmail(email: String)
+    fun updatePassword(password: String)
+    fun togglePasswordVisibility()
+    fun forgetPasswordClick()
+    fun signUpClick()
+    fun signInClick()
 }
 
 
@@ -30,9 +27,31 @@ class DefaultSignInComponent(context: ComponentContext) : SignInComponent,
     override val hidePassword: StateFlow<Boolean>
         get() = TODO("Not yet implemented")
 
-    override fun sendEvent(e: SignInComponent.Event) {
+    override fun updateEmail(email: String) {
+        TODO("Not yet implemented")
+    }
+
+    override fun updatePassword(password: String) {
+        TODO("Not yet implemented")
+    }
+
+    override fun togglePasswordVisibility() {
+        TODO("Not yet implemented")
+    }
+
+    override fun forgetPasswordClick() {
+        TODO("Not yet implemented")
+    }
+
+    override fun signUpClick() {
+        TODO("Not yet implemented")
+    }
+
+    override fun signInClick() {
+        TODO("Not yet implemented")
     }
 }
+
 
 
 class FakeSignInComponent : SignInComponent {
@@ -44,22 +63,27 @@ class FakeSignInComponent : SignInComponent {
 
     private val _hidePassword = MutableStateFlow(false)
     override val hidePassword: StateFlow<Boolean> = _hidePassword
+    override fun updateEmail(email: String) {
+        TODO("Not yet implemented")
+    }
 
-    override fun sendEvent(e: SignInComponent.Event) {
-        when (e) {
-            SignInComponent.Event.TogglePasswordVisibility -> {
-                _hidePassword.value = hidePassword.value.not()
-            }
+    override fun updatePassword(password: String) {
+        TODO("Not yet implemented")
+    }
 
-            is SignInComponent.Event.UpdateEmail -> {
-                _userEmail.value = e.value
-            }
+    override fun togglePasswordVisibility() {
+        TODO("Not yet implemented")
+    }
 
-            is SignInComponent.Event.UpdatePassword -> {
-                _userPassword.value = e.value
-            }
+    override fun forgetPasswordClick() {
+        TODO("Not yet implemented")
+    }
 
-            else -> {}
-        }
+    override fun signUpClick() {
+        TODO("Not yet implemented")
+    }
+
+    override fun signInClick() {
+        TODO("Not yet implemented")
     }
 }

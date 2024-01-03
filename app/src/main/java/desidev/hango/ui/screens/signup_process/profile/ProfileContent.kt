@@ -224,18 +224,18 @@ private fun InputFields(modifier: Modifier = Modifier, component: ProfileCompone
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(20.dp)) {
         OutlinedTextField(
             value = name,
-            onValueChange = { component.sendEvent(Event.UpdateName(it)) },
+            onValueChange = { component.onEvent(Event.UpdateName(it)) },
             label = { Text(text = "Name") },
             singleLine = true
         )
 
-        DateOfBirthInput(selectedDate = dob, onDateSelected = { component.sendEvent(Event.UpdateDOB(it)) })
+        DateOfBirthInput(selectedDate = dob, onDateSelected = { component.onEvent(Event.UpdateDOB(it)) })
 
         OutlinedTextField(value = dob.toString(), onValueChange = {
 
         })
 
-        GenderInput(value = gender, onValueChange = { component.sendEvent(Event.UpdateGender(it)) })
+        GenderInput(value = gender, onValueChange = { component.onEvent(Event.UpdateGender(it)) })
     }
 }
 

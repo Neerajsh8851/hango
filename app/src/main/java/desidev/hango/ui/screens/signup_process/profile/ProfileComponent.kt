@@ -5,7 +5,6 @@ import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 import desidev.hango.model.Gender
-import desidev.hango.ui.screens.Events
 import java.time.LocalDate
 
 
@@ -23,11 +22,16 @@ sealed interface ProfilePicState {
     data object NoPicture : ProfilePicState
 }
 
-interface ProfileComponent : Events<Event> {
+interface ProfileComponent  {
     val name: Value<String>
     val dob: Value<LocalDate>
     val gender: Value<Gender>
     val profilePic: Value<ProfilePicState>
+
+    fun onNameChange(name: String)
+    fun onDobChange(dob: LocalDate)
+    fun onGenderSelect(gender: Gender)
+    fun onProfileSelect(profileUri: Uri)
 }
 
 
@@ -59,11 +63,21 @@ class DefaultProfileComponent(
     private val profileUrlCallback: OnProfilePhotoSelect,
 ) : ProfileComponent,
     ComponentContext by context {
-    override fun sendEvent(e: Event) = when (e) {
-        is Event.UpdateName -> nameCallback.onUpdateName(e.value)
-        is Event.UpdateDOB -> dobCallback.onUpdateDob(e.dob)
-        is Event.UpdateGender -> genderCallback.onUpdateGender(e.gender)
-        is Event.UploadPhoto -> profileUrlCallback.onPhotoSelect(e.uri)
+
+    override fun onNameChange(name: String) {
+        nameCallback.onUpdateName(name)
+    }
+
+    override fun onDobChange(dob: LocalDate) {
+        dobCallback.onUpdateDob(dob)
+    }
+
+    override fun onGenderSelect(gender: Gender) {
+        genderCallback.onUpdateGender(gender)
+    }
+
+    override fun onProfileSelect(profileUri: Uri) {
+        profileUrlCallback.onPhotoSelect(profileUri)
     }
 }
 
@@ -81,13 +95,17 @@ class FakeProfileComponent : ProfileComponent {
     private val _profilePic = MutableValue(ProfilePicState.NoPicture)
     override val profilePic: Value<ProfilePicState> = _profilePic
 
+    override fun onNameChange(name: String) { _name.value = name }
 
-    override fun sendEvent(e: Event) {
-        when (e) {
-            is Event.UpdateName -> _name.value = e.value
-            is Event.UpdateDOB -> _dob.value = e.dob
-            is Event.UpdateGender -> _gender.value = e.gender
-            is Event.UploadPhoto -> TODO()
-        }
+    override fun onDobChange(dob: LocalDate) {
+        _dob.value = dob
+    }
+
+    override fun onGenderSelect(gender: Gender) {
+        _gender.value = gender
+    }
+
+    override fun onProfileSelect(profileUri: Uri) {
+
     }
 }

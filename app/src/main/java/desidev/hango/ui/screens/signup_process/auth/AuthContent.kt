@@ -32,6 +32,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withAnnotation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import com.arkivanov.decompose.value.getValue
 import desidev.hango.ui.composables.OtpInput
 
 
@@ -46,7 +47,7 @@ fun AuthContentPreview() {
 @OptIn(ExperimentalTextApi::class)
 @Composable
 fun AuthContent(component: AuthComponent, modifier: Modifier = Modifier) {
-    val userEmail = component.userEmail
+    val userEmail by component.userEmail
     val otpValue by component.optValue.collectAsState()
     val uriHandler = LocalUriHandler.current
 
@@ -131,7 +132,7 @@ fun AuthContent(component: AuthComponent, modifier: Modifier = Modifier) {
             OtpInput(
                 otpValue = otpValue,
                 onValueChange = { newValue, isValid ->
-                    component.sendEvent(Event.UpdateOtp(newValue))
+                    component.updateOtp(newValue)
                     if (isValid) {
                         Log.d("AuthContent", "Entered a valid otp")
                     }
@@ -145,7 +146,7 @@ fun AuthContent(component: AuthComponent, modifier: Modifier = Modifier) {
                 modifier = Modifier.layoutId(sendAgainBtnId)
             ) {
                 Text(text = "Did not get otp?")
-                TextButton(onClick = { component.sendEvent(Event.OnSendOtp) }) {
+                TextButton(onClick = { component.requestNewOtp() }) {
                     Text(text = "Send again")
                 }
             }

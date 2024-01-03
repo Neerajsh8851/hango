@@ -16,6 +16,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,10 +26,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -36,9 +40,9 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import desidev.hango.R
 import desidev.hango.ui.composables.EmailInputField
 import desidev.hango.ui.composables.PasswordInputFieldComponent
+import desidev.hango.ui.screens.signup_process.signup.Event
+import desidev.hango.ui.screens.signup_process.signup.PasswordVisibilityToggle
 import desidev.hango.ui.theme.AppTheme
-
-import desidev.hango.ui.screens.signin.SignInComponent.Event
 
 
 @Preview(name = "SignInScreen", showSystemUi = true)
@@ -52,10 +56,10 @@ fun SignInScreenPreview() {
 
 
 @Composable
-fun SignInContent(bloc: SignInComponent) {
-    val emailAddr by bloc.userEmail.collectAsState()
-    val password by bloc.userPassword.collectAsState()
-    val hidePassword by bloc.hidePassword.collectAsState()
+fun SignInContent(component: SignInComponent) {
+    val emailAddr by component.userEmail.collectAsState()
+    val password by component.userPassword.collectAsState()
+    val hidePassword by component.hidePassword.collectAsState()
 
     Surface(modifier = Modifier.fillMaxSize()) {
         ConstraintLayout {
@@ -74,10 +78,10 @@ fun SignInContent(bloc: SignInComponent) {
                 emailAddr = emailAddr,
                 password = password,
                 hidePassword = hidePassword,
-                onEmailChange = { newValue -> bloc.sendEvent(Event.UpdateEmail(newValue)) },
-                onPasswordChange = { newValue -> bloc.sendEvent(Event.UpdatePassword(newValue)) },
-                onForgetPasswordClick = { bloc.sendEvent(Event.ForgetPassClick) },
-                passwordVisibilityToggle = { bloc.sendEvent(Event.TogglePasswordVisibility) },
+                onEmailChange = { newValue -> component.updateEmail(newValue) },
+                onPasswordChange = { newValue -> component.updatePassword(newValue) },
+                onForgetPasswordClick = { component.forgetPasswordClick() },
+                passwordVisibilityToggle = { component.togglePasswordVisibility() },
                 modifier = Modifier.constrainAs(inputsAndOps) {
                     centerVerticallyTo(parent)
                     centerHorizontallyTo(parent)
@@ -91,10 +95,10 @@ fun SignInContent(bloc: SignInComponent) {
                     centerHorizontallyTo(parent)
                 },
                 onSignInClick = {
-                    bloc.sendEvent(Event.SignInClick)
+                    component.signInClick()
                 },
                 onSignUpClick = {
-                    bloc.sendEvent(Event.SignUpClick)
+                    component.signUpClick()
                 }
             )
         }
@@ -111,7 +115,7 @@ fun InputFieldsAndOptions(
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onForgetPasswordClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val focusManager = LocalFocusManager.current
     val keyboardActions = remember {
@@ -126,9 +130,9 @@ fun InputFieldsAndOptions(
     }
 
     Column(modifier = modifier.width(280.dp)) {
-        EmailInputField(
+        OutlinedTextField(
             modifier = Modifier.width(280.dp),
-            label = "Email Address",
+            label = { Text("Email Address") },
             value = emailAddr,
             onValueChange = onEmailChange,
             keyboardOptions = KeyboardOptions(
@@ -140,26 +144,21 @@ fun InputFieldsAndOptions(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        PasswordInputFieldComponent(
+        OutlinedTextField(
+            label = { Text(text = "Password") },
             value = password,
-            hidePassword = hidePassword,
-            onValueChange = onPasswordChange,
-            leadingIcon = {
-                val iconPainterResource =
-                    if (hidePassword) {
-                        painterResource(id = R.drawable.visibility_24)
-                    } else {
-                        painterResource(id = R.drawable.visibility_off_24)
-                    }
-
-                IconButton(onClick = passwordVisibilityToggle) {
-                    Icon(
-                        painter = iconPainterResource,
-                        contentDescription = null
-                    )
-                }
+            onValueChange = {
+                onPasswordChange(it)
             },
-            keyboardActions = keyboardActions
+            singleLine = true,
+            trailingIcon = {
+                PasswordVisibilityToggle(passwordHidden = hidePassword, onToggle = {
+                    passwordVisibilityToggle()
+                })
+            },
+            visualTransformation = if (hidePassword) VisualTransformation.None else PasswordVisualTransformation(),
+            modifier = Modifier
+                .padding(bottom = 20.dp)
         )
 
         Spacer(modifier = Modifier.height(12.dp))
