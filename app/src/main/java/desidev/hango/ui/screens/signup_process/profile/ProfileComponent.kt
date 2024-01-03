@@ -8,13 +8,6 @@ import desidev.hango.model.Gender
 import java.time.LocalDate
 
 
-sealed interface Event {
-    data class UpdateName(val value: String) : Event
-    class UpdateDOB(val dob: LocalDate) : Event
-    class UpdateGender(val gender: Gender) : Event
-    class UploadPhoto(val uri: Uri) : Event
-}
-
 
 sealed interface ProfilePicState {
     data class UploadingDone(val url: String) : ProfilePicState
@@ -28,9 +21,9 @@ interface ProfileComponent  {
     val gender: Value<Gender>
     val profilePic: Value<ProfilePicState>
 
-    fun onNameChange(name: String)
-    fun onDobChange(dob: LocalDate)
-    fun onGenderSelect(gender: Gender)
+    fun setName(name: String)
+    fun setDob(dob: LocalDate)
+    fun setGender(gender: Gender)
     fun onProfileSelect(profileUri: Uri)
 }
 
@@ -64,15 +57,15 @@ class DefaultProfileComponent(
 ) : ProfileComponent,
     ComponentContext by context {
 
-    override fun onNameChange(name: String) {
+    override fun setName(name: String) {
         nameCallback.onUpdateName(name)
     }
 
-    override fun onDobChange(dob: LocalDate) {
+    override fun setDob(dob: LocalDate) {
         dobCallback.onUpdateDob(dob)
     }
 
-    override fun onGenderSelect(gender: Gender) {
+    override fun setGender(gender: Gender) {
         genderCallback.onUpdateGender(gender)
     }
 
@@ -95,13 +88,13 @@ class FakeProfileComponent : ProfileComponent {
     private val _profilePic = MutableValue(ProfilePicState.NoPicture)
     override val profilePic: Value<ProfilePicState> = _profilePic
 
-    override fun onNameChange(name: String) { _name.value = name }
+    override fun setName(name: String) { _name.value = name }
 
-    override fun onDobChange(dob: LocalDate) {
+    override fun setDob(dob: LocalDate) {
         _dob.value = dob
     }
 
-    override fun onGenderSelect(gender: Gender) {
+    override fun setGender(gender: Gender) {
         _gender.value = gender
     }
 

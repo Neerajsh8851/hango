@@ -1,6 +1,5 @@
 package desidev.hango.ui.screens.signup_process.profile
 
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -10,20 +9,17 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
@@ -55,7 +51,6 @@ import desidev.hango.R
 import desidev.hango.model.Gender
 import desidev.hango.ui.composables.DateOfBirthInput
 import desidev.hango.ui.theme.AppTheme
-import java.io.ByteArrayOutputStream
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -74,7 +69,6 @@ fun ProfileContentPreview() {
 
 @Composable
 fun ProfileContent(component: ProfileComponent, modifier: Modifier = Modifier) {
-    val context = LocalContext.current
     val profilePicState by component.profilePic.subscribeAsState()
     var openPhotoPicker by remember { mutableStateOf(false) }
 
@@ -82,18 +76,8 @@ fun ProfileContent(component: ProfileComponent, modifier: Modifier = Modifier) {
         PhotoPickerResult(
             onPhotoSelected = { uri: Uri ->
                 Log.d("ProfileContent", "Photo selected${uri.path}")
-                val imageData = ByteArrayOutputStream(1024)
-                context.contentResolver.openInputStream(uri)?.use { stream ->
-//                    val buffer = ByteArray(1024)
-//                    var len = stream.read(buffer)
-//                    while (len > 0) {
-//                        imageData.write(buffer, 0, len)
-//                        len = stream.read(buffer)
-//                    }
-                    val bitmap = BitmapFactory.decodeStream(stream)
-                }
-
-            }, onDismiss = {
+            },
+            onDismiss = {
                 openPhotoPicker = false
             }
         )
@@ -135,9 +119,9 @@ fun ProfileContent(component: ProfileComponent, modifier: Modifier = Modifier) {
             .constrainAs(saveBtn) {
                 centerHorizontallyTo(parent)
                 top.linkTo(inputs.bottom, 48.dp)
-            }) {
+            }
+        ) {
             Text(text = "Save")
-
         }
     }
 }
@@ -224,18 +208,14 @@ private fun InputFields(modifier: Modifier = Modifier, component: ProfileCompone
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(20.dp)) {
         OutlinedTextField(
             value = name,
-            onValueChange = { component.onEvent(Event.UpdateName(it)) },
+            onValueChange = { component.setName(name) },
             label = { Text(text = "Name") },
             singleLine = true
         )
 
-        DateOfBirthInput(selectedDate = dob, onDateSelected = { component.onEvent(Event.UpdateDOB(it)) })
+        DateOfBirthInput(selectedDate = dob, onDateSelected = { component.setDob(it) })
 
-        OutlinedTextField(value = dob.toString(), onValueChange = {
-
-        })
-
-        GenderInput(value = gender, onValueChange = { component.onEvent(Event.UpdateGender(it)) })
+        GenderInput(value = gender, onValueChange = { component.setGender(it) })
     }
 }
 
@@ -254,63 +234,42 @@ fun GenderInput(value: Gender, onValueChange: (Gender) -> Unit) {
         closeMenu()
     }
 
-    Column {
-        Text(
-            text = "Gender", style = typography.labelLarge.copy(color = colorScheme.onSurface)
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Surface(shape = RoundedCornerShape(50.dp), color = colorScheme.surfaceContainer) {
-            Box(
-                modifier = Modifier.size(280.dp, 48.dp),
-            ) {
-                Text(
-                    text = value.toString(),
-                    style = typography.bodyMedium,
-                    modifier = Modifier
-                        .align(
-                            Alignment.CenterStart
-                        )
-                        .padding(start = 16.dp)
-                )
-
-                IconButton(
-                    onClick = { menuExpanded = true },
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .padding(end = 8.dp)
-                ) {
-                    /* Icon(
-                         imageVector = Icons.Default.ArrowDropDown,
-                         contentDescription = "Choose date icon",
-                     )*/
-
+    ExposedDropdownMenuBox(
+        expanded = menuExpanded,
+        onExpandedChange = {
+            menuExpanded = it
+        }
+    ) {
+        OutlinedTextField(
+            value = value.toString(),
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(text = "Gender") },
+            trailingIcon = {
+                IconButton(onClick = {menuExpanded = true}) {
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = menuExpanded)
                 }
-            }
-        }
+            },
+            modifier = Modifier.menuAnchor()
+        )
 
-
-        Box(
-            modifier = Modifier
-                .align(Alignment.End)
-                .padding(top = 8.dp)
+        ExposedDropdownMenu(
+            expanded = menuExpanded,
+            onDismissRequest = {
+                menuExpanded = false
+            },
         ) {
-            DropdownMenu(
-                expanded = menuExpanded,
-                onDismissRequest = { menuExpanded = false },
-            ) {
+            Gender.entries.forEach { gender ->
                 DropdownMenuItem(
-                    text = { Text(text = "Male") },
-                    onClick = { selectGender(Gender.Male) })
-                DropdownMenuItem(
-                    text = { Text(text = "Female") },
-                    onClick = { selectGender(Gender.Female) })
-                DropdownMenuItem(
-                    text = { Text(text = "Other") },
-                    onClick = { selectGender(Gender.Other) })
+                    text = { Text(gender.toString()) },
+                    onClick = {
+                        selectGender(gender)
+                    },
+                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                )
             }
         }
+
     }
 }
 

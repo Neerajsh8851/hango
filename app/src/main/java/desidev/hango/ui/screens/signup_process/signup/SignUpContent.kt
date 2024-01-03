@@ -91,7 +91,7 @@ fun SignUpContent(component: SignUpComponent) {
                 value = userEmail,
                 label = { Text(text = "Email") },
                 onValueChange = {
-                    component.onEvent(Event.UpdateEmail(it))
+                    component.setEmail(it)
                 },
                 modifier = Modifier
                     .padding(bottom = 20.dp)
@@ -102,12 +102,12 @@ fun SignUpContent(component: SignUpComponent) {
                 label = { Text(text = "Password") },
                 value = userPass,
                 onValueChange = {
-                    component.onEvent(Event.UpdatePassword(it))
+                    component.setPassword(it)
                 },
                 singleLine = true,
                 trailingIcon = {
-                    PasswordVisibilityToggle(passwordHidden = hidePassword, onToggle = {
-                        component.onEvent(Event.ToggleHidePassword)
+                    PasswordVisibilityToggleIconButton(passwordHidden = hidePassword, onToggle = {
+                        component.togglePasswordVisibility()
                     })
                 },
                 visualTransformation = if (hidePassword) VisualTransformation.None else PasswordVisualTransformation(),
@@ -121,7 +121,7 @@ fun SignUpContent(component: SignUpComponent) {
                 value = confirmPass,
                 label = { Text(text = "Confirm password") },
                 onValueChange = {
-                    component.onEvent(Event.UpdateConfirmPassword(it))
+                    component.setConfirmPassword(it)
                 },
                 visualTransformation = if (hidePassword) VisualTransformation.None else PasswordVisualTransformation(),
                 modifier = Modifier.layoutId("confirmPass")
@@ -129,7 +129,7 @@ fun SignUpContent(component: SignUpComponent) {
 
             BottomContent(
                 onSubmitClick = {
-                    component.onEvent(Event.SubmitClick)
+                    component.onSubmit()
                 },
                 modifier = Modifier.layoutId("bottomContent")
             )
@@ -139,7 +139,7 @@ fun SignUpContent(component: SignUpComponent) {
 
 
 @Composable
-fun PasswordVisibilityToggle(
+fun PasswordVisibilityToggleIconButton(
     modifier: Modifier = Modifier,
     passwordHidden: Boolean,
     onToggle: () -> Unit,
