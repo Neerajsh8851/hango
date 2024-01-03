@@ -1,5 +1,6 @@
 package desidev.hango.ui.screens.signup_process
 
+import android.net.Uri
 import android.os.Parcelable
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.ChildStack
@@ -13,9 +14,9 @@ import desidev.hango.ui.screens.signup_process.auth.AuthComponent
 import desidev.hango.ui.screens.signup_process.auth.DefaultAuthComponent
 import desidev.hango.ui.screens.signup_process.profile.DefaultProfileComponent
 import desidev.hango.ui.screens.signup_process.profile.ProfileComponent
-import desidev.hango.ui.screens.signup_process.profile.ProfilePicState
 import desidev.hango.ui.screens.signup_process.signup.DefaultSignUpComponent
 import desidev.hango.ui.screens.signup_process.signup.SignUpComponent
+import desidev.kotlin.utils.Option
 import kotlinx.parcelize.Parcelize
 import java.time.LocalDate
 
@@ -55,10 +56,11 @@ class DefaultSignUpProcess(
     private val name = MutableValue("")
     private val dob = MutableValue(LocalDate.now().minusYears(18))
     private val gender = MutableValue(Gender.Male)
-    private val profilePic = MutableValue(ProfilePicState.NoPicture)
+    private val profilePic = MutableValue<Option<Uri>>(Option.None)
 
     override val child = childStack(
         source = navigation,
+        handleBackButton = true,
         initialConfiguration = Config.SignUp
     ) { config, context ->
         when (config) {
@@ -85,8 +87,8 @@ class DefaultSignUpProcess(
                     nameCallback = { name.value = it },
                     dobCallback = { dob.value = it },
                     genderCallback = { gender.value = it },
-                    profileUrlCallback = { uri ->
-                        // Todo: upload this photo
+                    profileUrlCallback = { uri: Uri ->
+                        profilePic.value = Option.Some(uri)
                     }
                 )
             )

@@ -5,7 +5,6 @@ import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 import desidev.hango.handler.EmailUpdateHandle
 import desidev.hango.handler.PasswordUpdateHandle
-import okhttp3.internal.notify
 
 
 interface SignUpComponent  {
@@ -38,7 +37,7 @@ class DefaultSignUpComponent(
 ) : SignUpComponent,
     ComponentContext by context {
 
-    private val _confirmPassword = MutableValue("9890808")
+    private val _confirmPassword = MutableValue(userPassword.value)
     override val confirmPassword: Value<String> = _confirmPassword
     private val _hidePassword = MutableValue(false)
     override val hidePassword: Value<Boolean> = _hidePassword
@@ -60,7 +59,7 @@ class DefaultSignUpComponent(
         _hidePassword.value = hidePassword.value.not()
     }
     override fun onSubmit() {
-        if (userPassword == confirmPassword) {
+        if (userPassword.value == confirmPassword.value) {
             onSubmitClick.onSubmit()
         }
     }

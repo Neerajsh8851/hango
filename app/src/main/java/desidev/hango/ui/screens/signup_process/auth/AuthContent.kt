@@ -40,18 +40,18 @@ import desidev.hango.ui.composables.OtpInput
 @Composable
 fun AuthContentPreview() {
     AppTheme {
-        AuthContent(component = remember { FakeAuthComponent() }, modifier = Modifier.fillMaxSize())
+        AuthContent(component = remember { FakeAuthComponent() })
     }
 }
 
 @OptIn(ExperimentalTextApi::class)
 @Composable
-fun AuthContent(component: AuthComponent, modifier: Modifier = Modifier) {
+fun AuthContent(component: AuthComponent) {
     val userEmail by component.userEmail
     val otpValue by component.optValue.collectAsState()
     val uriHandler = LocalUriHandler.current
 
-    Surface(modifier = modifier) {
+    Surface(modifier = Modifier.fillMaxSize()) {
         val headingTextId = "heading_text"
         val emailTextId = "email_text"
         val otpFieldId = "otp_field"

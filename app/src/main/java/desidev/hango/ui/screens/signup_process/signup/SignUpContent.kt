@@ -128,9 +128,7 @@ fun SignUpContent(component: SignUpComponent) {
             )
 
             BottomContent(
-                onSubmitClick = {
-                    component.onSubmit()
-                },
+                onSubmitClick = { component.onSubmit() },
                 modifier = Modifier.layoutId("bottomContent")
             )
         }
@@ -175,10 +173,7 @@ private fun BottomContent(
             onClick = onSubmitClick,
             modifier = Modifier.width(280.dp)
         ) {
-            Text(
-                text = "Submit",
-                modifier = Modifier.animateContentSize()
-            )
+            Text(text = "Submit")
         }
 
         Text(

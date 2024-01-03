@@ -5,21 +5,16 @@ import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 import desidev.hango.model.Gender
+import desidev.kotlin.utils.Option
 import java.time.LocalDate
 
 
-
-sealed interface ProfilePicState {
-    data class UploadingDone(val url: String) : ProfilePicState
-    data object Uploading : ProfilePicState
-    data object NoPicture : ProfilePicState
-}
 
 interface ProfileComponent  {
     val name: Value<String>
     val dob: Value<LocalDate>
     val gender: Value<Gender>
-    val profilePic: Value<ProfilePicState>
+    val profilePic: Value<Option<Uri>>
 
     fun setName(name: String)
     fun setDob(dob: LocalDate)
@@ -49,7 +44,7 @@ class DefaultProfileComponent(
     override val name: Value<String>,
     override val dob: Value<LocalDate>,
     override val gender: Value<Gender>,
-    override val profilePic: Value<ProfilePicState>,
+    override val profilePic: Value<Option<Uri>>,
     private val nameCallback: OnUpdateNameCallback,
     private val dobCallback: OnUpdateDobCallback,
     private val genderCallback: OnUpdateGenderCallback,
@@ -85,8 +80,8 @@ class FakeProfileComponent : ProfileComponent {
     private val _gender = MutableValue(Gender.Male)
     override val gender: Value<Gender> = _gender
 
-    private val _profilePic = MutableValue(ProfilePicState.NoPicture)
-    override val profilePic: Value<ProfilePicState> = _profilePic
+    private val _profilePic: MutableValue<Option<Uri>> = MutableValue(Option.None)
+    override val profilePic: Value<Option<Uri>> =_profilePic
 
     override fun setName(name: String) { _name.value = name }
 

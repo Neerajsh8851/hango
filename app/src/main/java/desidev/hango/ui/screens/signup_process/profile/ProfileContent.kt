@@ -5,7 +5,9 @@ import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,8 +17,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -37,7 +40,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -51,6 +58,9 @@ import desidev.hango.R
 import desidev.hango.model.Gender
 import desidev.hango.ui.composables.DateOfBirthInput
 import desidev.hango.ui.theme.AppTheme
+import desidev.kotlin.utils.Option
+import desidev.kotlin.utils.ifNone
+import desidev.kotlin.utils.ifSome
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -61,14 +71,14 @@ fun ProfileContentPreview() {
     AppTheme {
         Surface {
             ProfileContent(
-                component = remember { FakeProfileComponent() }, modifier = Modifier.fillMaxSize()
+                component = remember { FakeProfileComponent() }
             )
         }
     }
 }
 
 @Composable
-fun ProfileContent(component: ProfileComponent, modifier: Modifier = Modifier) {
+fun ProfileContent(component: ProfileComponent) {
     val profilePicState by component.profilePic.subscribeAsState()
     var openPhotoPicker by remember { mutableStateOf(false) }
 
@@ -84,7 +94,7 @@ fun ProfileContent(component: ProfileComponent, modifier: Modifier = Modifier) {
     }
 
     ConstraintLayout(
-        modifier = modifier,
+        modifier = Modifier.fillMaxSize(),
     ) {
         val (headingTxt, inputs, saveBtn, profilePic) = createRefs()
         Text(
@@ -129,7 +139,7 @@ fun ProfileContent(component: ProfileComponent, modifier: Modifier = Modifier) {
 
 @Composable
 fun ProfilePic(
-    modifier: Modifier = Modifier, profilePic: ProfilePicState, onPhotoEditClick: () -> Unit,
+    modifier: Modifier = Modifier, profilePic: Option<Uri>, onPhotoEditClick: () -> Unit,
 ) {
     @Composable
     fun ProfileLayout(modifier: Modifier, content: @Composable () -> Unit) {
@@ -151,41 +161,34 @@ fun ProfilePic(
     }
 
 
-    ProfileLayout(modifier) {
-        when (profilePic) {
-            is ProfilePicState.NoPicture -> {
-                Box(
-                    modifier = Modifier
-                        .size(100.dp)
-                        .layoutId("picture")
-                        .background(color = colorScheme.surfaceContainer, shape = CircleShape)
-                )
-            }
+    val profilePicModifier = Modifier
+        .layoutId("picture")
+        .size(100.dp)
+        .clip(CircleShape)
+        .border(color = colorScheme.outline, width = 1.dp, shape = CircleShape)
 
-            ProfilePicState.Uploading -> {
-                Box(
-                    modifier = Modifier
-                        .size(100.dp)
-                        .layoutId("picture")
-                        .background(color = colorScheme.surfaceContainer, shape = CircleShape)
-                ) {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                }
-            }
+    ProfileLayout(modifier = modifier) {
+        profilePic.ifSome { uri ->
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current).data(uri)
+                    .crossfade(true).build(),
+                contentDescription = "Profile picture",
+                modifier = profilePicModifier
+            )
+        }
 
-            is ProfilePicState.UploadingDone -> {
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current).data(profilePic.url)
-                        .crossfade(true).build(),
-                    contentDescription = "Profile picture",
-                    modifier = Modifier
-                        .size(100.dp)
-                        .layoutId("picture")
-                        .background(color = colorScheme.surfaceContainer, shape = CircleShape)
+        profilePic.ifNone {
+            Box(
+                modifier = profilePicModifier.background(color = colorScheme.tertiaryContainer),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "DP",
+                    color = colorScheme.onTertiaryContainer,
+                    style = typography.headlineMedium
                 )
             }
         }
-
 
         FilledIconButton(
             onClick = onPhotoEditClick, modifier = Modifier.layoutId("icon")
@@ -246,7 +249,7 @@ fun GenderInput(value: Gender, onValueChange: (Gender) -> Unit) {
             readOnly = true,
             label = { Text(text = "Gender") },
             trailingIcon = {
-                IconButton(onClick = {menuExpanded = true}) {
+                IconButton(onClick = { menuExpanded = true }) {
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = menuExpanded)
                 }
             },
