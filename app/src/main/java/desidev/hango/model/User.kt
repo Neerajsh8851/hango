@@ -2,7 +2,7 @@ package desidev.hango.model
 
 import java.time.LocalDate
 
-data class Profile(
+data class User(
     val firstname: String,
     val lastname: String,
     val gender: Gender,

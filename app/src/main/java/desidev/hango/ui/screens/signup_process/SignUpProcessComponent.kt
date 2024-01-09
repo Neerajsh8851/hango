@@ -91,15 +91,19 @@ class DefaultSignUpProcess(
                     genderCallback = { gender.value = it },
                     profileUrlCallback = { uri: Uri ->
                         profilePic.value = Option.Some(uri)
+                    },
+                    onSubmitClick = {
+                        navigation.push(Config.EmailAuth)
                     }
                 )
             )
 
             Config.EmailAuth -> Child.Auth(
                 DefaultAuthComponent(
-                    context,
-                    userEmail,
-                    otpSendRequestHandle = { }
+                    context = context,
+                    userEmail = userEmail,
+                    onOtpEnter = {},
+                    onSendAgain = {}
                 )
             )
         }

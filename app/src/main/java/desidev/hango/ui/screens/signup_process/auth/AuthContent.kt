@@ -32,6 +32,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withAnnotation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import com.arkivanov.decompose.extensions.compose.jetpack.subscribeAsState
 import com.arkivanov.decompose.value.getValue
 import desidev.hango.ui.composables.OtpInput
 
@@ -48,7 +49,7 @@ fun AuthContentPreview() {
 @Composable
 fun AuthContent(component: AuthComponent) {
     val userEmail by component.userEmail
-    val otpValue by component.optValue.collectAsState()
+    val otpValue by component.otpValue.subscribeAsState()
     val uriHandler = LocalUriHandler.current
 
     Surface(modifier = Modifier.fillMaxSize()) {

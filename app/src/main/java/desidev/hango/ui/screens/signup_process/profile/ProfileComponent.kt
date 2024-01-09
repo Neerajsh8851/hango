@@ -5,6 +5,7 @@ import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 import desidev.hango.model.Gender
+import desidev.hango.ui.screens.signup_process.signup.OnSubmitClick
 import desidev.kotlin.utils.Option
 import java.time.LocalDate
 
@@ -20,6 +21,8 @@ interface ProfileComponent  {
     fun setDob(dob: LocalDate)
     fun setGender(gender: Gender)
     fun onPhotoSelect(profileUri: Uri)
+
+    fun onSubmitClick()
 }
 
 
@@ -49,6 +52,7 @@ class DefaultProfileComponent(
     private val dobCallback: OnUpdateDobCallback,
     private val genderCallback: OnUpdateGenderCallback,
     private val profileUrlCallback: OnProfilePhotoSelect,
+    private val onSubmitClick: OnSubmitClick
 ) : ProfileComponent,
     ComponentContext by context {
 
@@ -66,6 +70,10 @@ class DefaultProfileComponent(
 
     override fun onPhotoSelect(profileUri: Uri) {
         profileUrlCallback.onPhotoSelect(profileUri)
+    }
+
+    override fun onSubmitClick() {
+        onSubmitClick.onSubmit()
     }
 }
 
@@ -95,5 +103,9 @@ class FakeProfileComponent : ProfileComponent {
 
     override fun onPhotoSelect(profileUri: Uri) {
 
+    }
+
+    override fun onSubmitClick() {
+        TODO("Not yet implemented")
     }
 }

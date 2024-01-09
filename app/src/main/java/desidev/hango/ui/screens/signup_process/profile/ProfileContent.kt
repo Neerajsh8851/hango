@@ -113,19 +113,22 @@ fun ProfileContent(component: ProfileComponent) {
             onPhotoEditClick = { openPhotoPicker = true }
         )
 
-        InputFields(component = component, modifier = Modifier.constrainAs(inputs) {
-            centerHorizontallyTo(parent)
-            centerVerticallyTo(parent)
-        })
+        InputFields(
+            component = component,
+            modifier = Modifier.constrainAs(inputs) {
+                centerHorizontallyTo(parent)
+                centerVerticallyTo(parent)
+            }
+        )
 
-        Button(onClick = { /*TODO*/ }, modifier = Modifier
+        Button(onClick = { component.onSubmitClick() }, modifier = Modifier
             .width(280.dp)
             .constrainAs(saveBtn) {
                 centerHorizontallyTo(parent)
                 top.linkTo(inputs.bottom, 48.dp)
             }
         ) {
-            Text(text = "Save")
+            Text(text = "Submit")
         }
     }
 }
@@ -205,14 +208,11 @@ private fun InputFields(modifier: Modifier = Modifier, component: ProfileCompone
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(20.dp)) {
         OutlinedTextField(
             value = name,
-            onValueChange = { component.setName(name) },
-            label = { Text(text = "Name") },
+            onValueChange = { newValue -> component.setName(newValue) },
             singleLine = true
         )
-
-        DateOfBirthInput(selectedDate = dob, onDateSelected = { component.setDob(it) })
-
-        GenderInput(value = gender, onValueChange = { component.setGender(it) })
+        DateOfBirthInput(selectedDate = dob, onDateSelected = { date -> component.setDob(date) })
+        GenderInput(value = gender, onValueChange = { newValue -> component.setGender(newValue) })
     }
 }
 

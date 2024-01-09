@@ -4,14 +4,12 @@ import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 import desidev.hango.handler.OtpRequestHandle
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 
 interface AuthComponent {
     val userEmail: Value<String>
-    val optValue: StateFlow<String>
+    val otpValue: Value<String>
     fun updateOtp(value: String)
-    fun verifyBtnClick()
+    fun onSubmit()
     fun requestNewOtp()
 }
 
@@ -19,28 +17,40 @@ interface AuthComponent {
 class DefaultAuthComponent(
     context: ComponentContext,
     override val userEmail: Value<String>,
-    private val otpSendRequestHandle: OtpRequestHandle,
-): ComponentContext by context, AuthComponent {
+    private val onOtpEnter: OnOtpEnter,
+    private val onSendAgain: OnSendAgain,
+) : ComponentContext by context, AuthComponent {
+    fun interface OnOtpEnter {
+        fun onEnter(otpValue: String)
+    }
 
-    private val _otpValue = MutableStateFlow("")
-    override val optValue: StateFlow<String> = _otpValue
+    fun interface OnSendAgain {
+        fun onSendAgain()
+    }
+
+    private val _otpValue = MutableValue("")
+    override val otpValue: Value<String> = _otpValue
     override fun updateOtp(value: String) {
         _otpValue.value = value
     }
 
-    override fun verifyBtnClick() {
+    override fun onSubmit() {
+        onOtpEnter.onEnter(otpValue.value)
     }
-    override fun requestNewOtp() = otpSendRequestHandle.sendOtpRequest()
+
+    override fun requestNewOtp() = onSendAgain.onSendAgain()
 }
 
-class FakeAuthComponent: AuthComponent {
+class FakeAuthComponent : AuthComponent {
     override val userEmail: Value<String> = MutableValue("myname@example.com")
-    private val _otpValue = MutableStateFlow("890889")
-    override val optValue: StateFlow<String> = _otpValue
+    private val _otpValue = MutableValue("45648")
+    override val otpValue: Value<String> = _otpValue
     override fun updateOtp(value: String) {
     }
-    override fun verifyBtnClick() {
+
+    override fun onSubmit() {
     }
+
     override fun requestNewOtp() {
     }
 }
