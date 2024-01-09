@@ -13,7 +13,3 @@ fun interface PasswordUpdateHandle {
 fun interface SignInRequestHandle {
     fun requestSignIn(credential: UserCredential)
 }
-
-fun interface OtpRequestHandle {
-    fun sendOtpRequest()
-}

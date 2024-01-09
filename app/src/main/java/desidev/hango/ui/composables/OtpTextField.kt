@@ -65,7 +65,6 @@ fun OtpInput(
     onValueChange: (String, Boolean) -> Unit,
     isValueInvalid: Boolean = false
 ) {
-
     // this config will be used for each cell
     val defaultCellConfig = OhTeePeeCellConfiguration.withDefaults(
         borderColor = colorScheme.outlineVariant,
@@ -80,7 +79,7 @@ fun OtpInput(
         isValueInvalid = isValueInvalid,
         onValueChange = onValueChange,
         configurations = OhTeePeeConfigurations.withDefaults(
-            cellsCount = 5,
+            cellsCount = 6,
             errorCellConfig = defaultCellConfig.copy(
                 borderColor = Color.Red,
             ),
@@ -92,6 +91,6 @@ fun OtpInput(
             cellModifier = Modifier
                 .padding(horizontal = 4.dp)
                 .size(40.dp),
-        ),
+        )
     )
 }

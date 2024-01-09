@@ -3,13 +3,12 @@ package desidev.hango.ui.screens.signup_process.auth
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
-import desidev.hango.handler.OtpRequestHandle
 
 interface AuthComponent {
     val userEmail: Value<String>
     val otpValue: Value<String>
     fun updateOtp(value: String)
-    fun onSubmit()
+    fun onOtpEnter()
     fun requestNewOtp()
 }
 
@@ -34,7 +33,7 @@ class DefaultAuthComponent(
         _otpValue.value = value
     }
 
-    override fun onSubmit() {
+    override fun onOtpEnter() {
         onOtpEnter.onEnter(otpValue.value)
     }
 
@@ -48,7 +47,7 @@ class FakeAuthComponent : AuthComponent {
     override fun updateOtp(value: String) {
     }
 
-    override fun onSubmit() {
+    override fun onOtpEnter() {
     }
 
     override fun requestNewOtp() {

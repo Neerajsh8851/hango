@@ -1,6 +1,6 @@
 package desidev.hango
 
-import desidev.hango.api.impl.DefaultHangoApi
+import desidev.hango.api.DefaultHangoApi
 import desidev.hango.api.model.EmailAuthData
 import desidev.kotlin.utils.Result
 import kotlinx.coroutines.runBlocking

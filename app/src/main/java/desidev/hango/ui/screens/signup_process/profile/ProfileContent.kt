@@ -55,6 +55,8 @@ import desidev.hango.ui.theme.AppTheme
 import desidev.kotlin.utils.Option
 import desidev.kotlin.utils.ifNone
 import desidev.kotlin.utils.ifSome
+import desidev.kotlin.utils.runIfNone
+import desidev.kotlin.utils.runIfSome
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -208,6 +210,7 @@ private fun InputFields(modifier: Modifier = Modifier, component: ProfileCompone
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(20.dp)) {
         OutlinedTextField(
             value = name,
+            label = { Text(text = "Name") },
             onValueChange = { newValue -> component.setName(newValue) },
             singleLine = true
         )

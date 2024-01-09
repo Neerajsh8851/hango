@@ -1,7 +1,6 @@
-package desidev.hango.api.impl
+package desidev.hango.api
 
 import com.google.gson.GsonBuilder
-import desidev.hango.api.HangoAuthApi
 import desidev.hango.api.model.EmailAuthData
 import desidev.hango.api.model.UserCredential
 import desidev.kotlin.utils.Option
