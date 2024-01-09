@@ -17,17 +17,28 @@ fun <T : Any> Option<T>.asSome() = this as Option.Some<T>
 
 fun <T : Any> Option<T>.unwrap() = this.asSome().value
 
-inline fun <T : Any, R : Any> Option<T>.ifSome(block: (T) -> R): Option<R> {
+inline fun <T : Any, R : Any> Option<T>.runIfSome(block: (T) -> Option<R>): Option<R> {
     return when (this) {
-        is Option.Some -> Option.Some(block.invoke(value))
+        is Option.Some -> block.invoke(value)
         else -> Option.None
     }
 }
 
-inline fun <T : Any, R : Any> Option<T>.ifNone(block: () -> R): Option<R> {
+inline fun <T : Any, R : Any> Option<T>.runIfNone(block: () -> Option<R>): Option<R> {
     return when (this) {
-        is Option.None -> Option.Some(block())
+        is Option.None -> block.invoke()
         else -> Option.None
     }
 }
+
+
+inline fun <T : Any> Option<T>.ifSome(block: (T) -> Unit) {
+    if (isSome()) { block(unwrap()) }
+}
+
+inline fun <T : Any> Option<T>.ifNone(block: () -> Unit) {
+    if (isNone()) { block() }
+}
+
+
 
