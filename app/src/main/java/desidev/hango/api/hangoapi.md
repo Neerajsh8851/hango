@@ -19,7 +19,8 @@ HangoApi::verifyEmailAuth(otpValue: String, authId: String): VerifyEmailAuthResp
 ```
 
 ## Register new account
-To create a new account client needs to give user info with payload and a verified auth data. 
+To create a new account client needs to give user info with payload. 
+payload contains auth data, user credential and user basic information.
 ```
-Hango::registerNewAccount(payload: RegisterAccountPayload, authDataId: String): Result<Nothing, String>
+Hango::registerNewAccount(payload: RegisterAccountPayload): Result<Nothing, String>
 ```
