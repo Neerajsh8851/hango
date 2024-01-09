@@ -1,21 +1,28 @@
 package desidev.hango.api.impl
 
+import com.google.gson.GsonBuilder
 import desidev.hango.api.HangoAuthApi
 import desidev.hango.api.model.EmailAuthData
 import desidev.hango.api.model.UserCredential
 import desidev.kotlin.utils.Option
 import desidev.kotlin.utils.Result
+import desidev.kotlin.utils.ifSome
 import io.ktor.client.HttpClient
 import io.ktor.client.call.NoTransformationFoundException
 import io.ktor.client.call.body
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.forms.formData
+import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
+import io.ktor.http.Headers
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.gson.gson
@@ -102,7 +109,35 @@ class DefaultHangoApi(private val baseUrl: String) : HangoAuthApi {
         credential: UserCredential,
         userInfo: HangoAuthApi.BasicUserInfo,
         pictureData: Option<HangoAuthApi.PictureData>,
-    ): Result<Nothing, String> {
-        TODO("Not yet implemented")
+    ): Result<String, Exception> {
+
+        val jsonPayload = GsonBuilder().create().run {
+            toJson(
+                mapOf(
+                    "authId" to verifiedAuthId,
+                    "credential" to credential,
+                    "basicInfo" to userInfo
+                )
+            )
+        }
+
+        val response = client.submitFormWithBinaryData(
+            url = "$baseUrl/account/create",
+            formData = formData {
+                append("jsonPayload", jsonPayload)
+                pictureData.ifSome {
+                    append("image", it.data, Headers.build {
+                            append(HttpHeaders.ContentType, it.type.toString())
+                        })
+                    append(HttpHeaders.ContentDisposition, "filename=${it.originalFilename}")
+                }
+            }
+        )
+
+        if (response.status != HttpStatusCode.OK) {
+            return Result.Err(IOException("failed with response: ${response.status}"))
+        }
+
+        return Result.Ok(response.bodyAsText())
     }
 }

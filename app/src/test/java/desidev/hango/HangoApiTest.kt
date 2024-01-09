@@ -16,8 +16,9 @@ class HangoApiTest {
 
     @Test
     fun createEmailAuth_Test(): Unit = runBlocking {
-        val result = api.createEmailAuth("neerajshdev@gmail.com", EmailAuthData.Purpose.CREATE_ACCOUNT)
-        when(result) {
+        val result =
+            api.createEmailAuth("neerajshdev@gmail.com", EmailAuthData.Purpose.CREATE_ACCOUNT)
+        when (result) {
             is Result.Err -> println(result.err)
             is Result.Ok -> println(result.value)
         }
@@ -31,7 +32,7 @@ class HangoApiTest {
         // otp value jo createEmailAuth request me diye hue email address pe aya hoga
         val otpValue = "699185"
 
-        when(val result = api.verifyEmailAuth(otpValue, authId)) {
+        when (val result = api.verifyEmailAuth(otpValue, authId)) {
             is Result.Err -> println(result.err)
             is Result.Ok -> println(result.value)
         }

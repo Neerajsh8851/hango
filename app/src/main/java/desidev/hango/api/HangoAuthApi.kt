@@ -2,7 +2,6 @@ package desidev.hango.api
 
 import desidev.hango.api.model.EmailAuthData
 import desidev.hango.api.model.UserCredential
-import desidev.hango.api.model.VerifyEmailAuthResponse
 import desidev.hango.model.Gender
 import desidev.kotlin.utils.Option
 import desidev.kotlin.utils.Result
@@ -18,11 +17,15 @@ interface HangoAuthApi {
     data class Mimetype(
         val contentType: String,
         val subType: String,
-    )
+    ) {
+        override fun toString(): String {
+            return "$contentType/$subType"
+        }
+    }
 
     class PictureData(
         val data: ByteArray,
-        val originalName: String,
+        val originalFilename: String,
         val type: Mimetype,
     )
 
@@ -32,7 +35,7 @@ interface HangoAuthApi {
         credential: UserCredential,
         userInfo: BasicUserInfo,
         pictureData: Option<PictureData>,
-    ): Result<Nothing, String>
+    ): Result<String, Exception>
 
     /**
      * Creates a new authentication data with the given email address and purpose.

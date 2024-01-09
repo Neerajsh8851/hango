@@ -1,3 +1,3 @@
 package desidev.hango.api.model
 
-data class UserCredential(val emailAddress: String, val password: String)
+data class UserCredential(val email: String, val password: String)
