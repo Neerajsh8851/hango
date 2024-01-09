@@ -84,7 +84,9 @@ class DefaultSignUpProcess(
                     dob = dob,
                     gender = gender,
                     profilePic = profilePic,
-                    nameCallback = { name.value = it },
+                    nameCallback = {
+                        name.value = it
+                    },
                     dobCallback = { dob.value = it },
                     genderCallback = { gender.value = it },
                     profileUrlCallback = { uri: Uri ->

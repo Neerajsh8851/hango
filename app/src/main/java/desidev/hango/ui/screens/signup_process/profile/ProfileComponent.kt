@@ -19,20 +19,20 @@ interface ProfileComponent  {
     fun setName(name: String)
     fun setDob(dob: LocalDate)
     fun setGender(gender: Gender)
-    fun onProfileSelect(profileUri: Uri)
+    fun onPhotoSelect(profileUri: Uri)
 }
 
 
 fun interface OnUpdateNameCallback {
-    fun onUpdateName(name: String)
+    fun onSetName(name: String)
 }
 
 fun interface OnUpdateDobCallback {
-    fun onUpdateDob(value: LocalDate)
+    fun onSetDOB(value: LocalDate)
 }
 
 fun interface OnUpdateGenderCallback {
-    fun onUpdateGender(value: Gender)
+    fun onSetGender(value: Gender)
 }
 
 fun interface OnProfilePhotoSelect {
@@ -53,18 +53,18 @@ class DefaultProfileComponent(
     ComponentContext by context {
 
     override fun setName(name: String) {
-        nameCallback.onUpdateName(name)
+        nameCallback.onSetName(name)
     }
 
     override fun setDob(dob: LocalDate) {
-        dobCallback.onUpdateDob(dob)
+        dobCallback.onSetDOB(dob)
     }
 
     override fun setGender(gender: Gender) {
-        genderCallback.onUpdateGender(gender)
+        genderCallback.onSetGender(gender)
     }
 
-    override fun onProfileSelect(profileUri: Uri) {
+    override fun onPhotoSelect(profileUri: Uri) {
         profileUrlCallback.onPhotoSelect(profileUri)
     }
 }
@@ -93,7 +93,7 @@ class FakeProfileComponent : ProfileComponent {
         _gender.value = gender
     }
 
-    override fun onProfileSelect(profileUri: Uri) {
+    override fun onPhotoSelect(profileUri: Uri) {
 
     }
 }

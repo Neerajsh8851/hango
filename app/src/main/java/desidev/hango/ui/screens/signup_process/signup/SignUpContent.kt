@@ -167,7 +167,6 @@ private fun BottomContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-
         Button(
             onClick = onSubmitClick,
             modifier = Modifier.width(280.dp)
