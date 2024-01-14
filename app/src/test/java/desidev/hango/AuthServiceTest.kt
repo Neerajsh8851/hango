@@ -1,6 +1,6 @@
 package desidev.hango
 
-import desidev.hango.api.DefaultHangoApi
+import desidev.hango.api.DefaultAuthService
 import desidev.hango.api.model.EmailAuthData
 import desidev.kotlin.utils.Result
 import kotlinx.coroutines.runBlocking
@@ -11,13 +11,15 @@ import org.junit.Test
  *
  * See [testing documentation](http://d.android.com/tools/testing).
  */
-class HangoApiTest {
-    val api = DefaultHangoApi("http://139.59.85.69")
+class AuthServiceTest {
+    private val authService = DefaultAuthService("http://139.59.85.69")
 
     @Test
     fun createEmailAuth_Test(): Unit = runBlocking {
-        val result =
-            api.createEmailAuth("neerajshdev@gmail.com", EmailAuthData.Purpose.CREATE_ACCOUNT)
+        val result = authService.requestEmailAuth(
+                "neerajshdev@gmail.com",
+                EmailAuthData.Purpose.CREATE_ACCOUNT
+            )
         when (result) {
             is Result.Err -> println(result.err)
             is Result.Ok -> println(result.value)
@@ -27,12 +29,12 @@ class HangoApiTest {
     @Test
     fun verifyEmailAuth_Test(): Unit = runBlocking {
         // createEmailAuth test ka result
-        val authId = "659d140eb3f1b7765f500835"
+        val authId = "65a423e14058d41c57ee2805"
 
         // otp value jo createEmailAuth request me diye hue email address pe aya hoga
-        val otpValue = "699185"
+        val otpValue = "951241"
 
-        when (val result = api.verifyEmailAuth(otpValue, authId)) {
+        when (val result = authService.verifyEmailAuth(authId = authId, otpValue = otpValue)) {
             is Result.Err -> println(result.err)
             is Result.Ok -> println(result.value)
         }

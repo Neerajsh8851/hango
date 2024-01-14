@@ -10,11 +10,11 @@ import com.arkivanov.decompose.router.stack.childStack
 import com.arkivanov.decompose.router.stack.push
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
-import desidev.hango.api.HangoAuthApi
+import desidev.hango.api.HangoAuthService
+import desidev.hango.api.model.BasicInfo
 import desidev.hango.api.model.EmailAuthData
+import desidev.hango.api.model.Gender
 import desidev.hango.api.model.UserCredential
-import desidev.hango.compmodel.DefaultAuthCompModel
-import desidev.hango.model.Gender
 import desidev.hango.ui.componentScope
 import desidev.hango.ui.screens.signup_process.auth.AuthComponent
 import desidev.hango.ui.screens.signup_process.auth.DefaultAuthComponent
@@ -24,13 +24,8 @@ import desidev.hango.ui.screens.signup_process.signup.DefaultSignUpComponent
 import desidev.hango.ui.screens.signup_process.signup.SignUpComponent
 import desidev.kotlin.utils.Option
 import desidev.kotlin.utils.Result
-import desidev.kotlin.utils.ifNone
+import desidev.kotlin.utils.asSome
 import desidev.kotlin.utils.ifSome
-import desidev.kotlin.utils.runIfSome
-import desidev.kotlin.utils.isSome
-import desidev.kotlin.utils.unwrap
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.handleCoroutineException
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 import java.time.LocalDate
@@ -60,13 +55,13 @@ sealed interface Child {
 }
 
 
-class DefaultSignUpProcess(
+class DefaultSignUpProcessComponent(
     context: ComponentContext,
-    authCompModel: DefaultAuthCompModel,
+    private val authService: HangoAuthService,
 ) : ComponentContext by context, SignUpProcessComponent {
 
     companion object {
-        val TAG = DefaultAuthComponent::class.simpleName
+        val TAG = DefaultSignUpProcessComponent::class.simpleName
     }
 
     private val navigation = StackNavigation<Config>()
@@ -78,9 +73,74 @@ class DefaultSignUpProcess(
     private val gender = MutableValue(Gender.Male)
     private val profilePic = MutableValue<Option<Uri>>(Option.None)
 
-    private var emailAuthData: Option<EmailAuthData> = Option.None
+    private var emailAuthData: MutableValue<Option<EmailAuthData>> = MutableValue(Option.None)
 
     private val scope = componentScope()
+
+
+    private fun requestEmailAuth() {
+        scope.launch {
+            val result = authService.requestEmailAuth(
+                userEmail.value,
+                EmailAuthData.Purpose.CREATE_ACCOUNT
+            )
+
+            when (result) {
+                is Result.Ok -> {
+                    Log.d(TAG, "requestEmailAuth: ${result.value}")
+                    emailAuthData.value = Option.Some(result.value)
+                }
+
+                is Result.Err -> {
+                    Log.d(TAG, "requestEmailAuth: ${result.err}")
+                }
+            }
+        }
+    }
+
+    private fun verifyEmailAuth(otp: String) {
+        scope.launch {
+            emailAuthData.value.ifSome {
+                when (val result = authService.verifyEmailAuth(it.authId, otp)) {
+                    is Result.Ok -> {
+                        Log.d(TAG, "verifyEmailAuth: ${result.value}")
+                    }
+
+                    is Result.Err -> {
+                        Log.d(TAG, "verifyEmailAuth: ${result.err}")
+                    }
+                }
+            }
+        }
+    }
+
+    private fun createAccount() {
+        scope.launch {
+            val result = authService.registerNewAccount(
+                verifiedAuthId = emailAuthData.value.asSome().value.authId,
+                credential = UserCredential(
+                    userEmail.value,
+                    userPassword.value
+                ),
+                userInfo = BasicInfo(
+                    name = name.value,
+                    gender = gender.value,
+                    dateOfBirth = dob.value
+                ),
+                pictureData = Option.None
+            )
+
+            when (result) {
+                is Result.Ok -> {
+                    Log.d(TAG, "createAccount: ${result.value}")
+                }
+
+                is Result.Err -> {
+                    Log.d(TAG, "createAccount: ${result.err}")
+                }
+            }
+        }
+    }
 
     override val child = childStack(
         source = navigation,
@@ -95,88 +155,32 @@ class DefaultSignUpProcess(
                     userPassword = userPassword,
                     onEmailUpdate = { userEmail.value = it },
                     onPasswordUpdate = { userPassword.value = it },
-                    onSubmitClick = {
-                        navigation.push(Config.Profile)
-                    }
+                    onSubmitClick = { navigation.push(Config.Profile) }
                 )
             )
 
-            Config.Profile -> Child.Profile(
+            is Config.Profile -> Child.Profile(
                 DefaultProfileComponent(
                     context = context,
                     name = name,
                     dob = dob,
                     gender = gender,
                     profilePic = profilePic,
-                    nameCallback = {
-                        name.value = it
-                    },
+                    nameCallback = { name.value = it },
                     dobCallback = { dob.value = it },
                     genderCallback = { gender.value = it },
-                    profileUrlCallback = { uri: Uri ->
-                        profilePic.value = Option.Some(uri)
-                    },
-                    onSubmitClick = {
-                        navigation.push(Config.EmailAuth)
-
-                        val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-                            throwable.printStackTrace()
-                        }
-
-                        scope.launch(exceptionHandler) {
-                            val result = authCompModel.requestEmailAuth(
-                                userEmail.value,
-                                EmailAuthData.Purpose.CREATE_ACCOUNT
-                            )
-                            emailAuthData = when (result) {
-                                is Result.Ok -> Option.Some(result.value)
-                                is Result.Err -> Option.None
-                            }
-                        }
-                    }
+                    profileUrlCallback = { uri: Uri -> profilePic.value = Option.Some(uri) },
+                    onSubmitClick = { navigation.push(Config.EmailAuth) }
                 )
             )
 
-            Config.EmailAuth -> Child.Auth(
+            is Config.EmailAuth -> Child.Auth(
                 DefaultAuthComponent(
                     context = context,
                     userEmail = userEmail,
-                    onOtpEnter = { otp ->
-                        scope.launch {
-                            emailAuthData = emailAuthData.runIfSome {
-                                when (val result = authCompModel.verifyEmailAuth(it.id, otp)) {
-                                    is Result.Err -> {
-                                        Log.d(TAG, "verify email result: ${result.err} ")
-                                        Option.None
-                                    }
-
-                                    is Result.Ok -> {
-                                        Log.d(TAG, "verify email result: ${result.value} ")
-                                        Option.Some(result.value)
-                                    }
-                                }
-                            }
-
-                            emailAuthData.ifSome { auth ->
-                                if (auth.status == EmailAuthData.Status.VERIFIED) {
-                                    authCompModel.createAccount(
-                                        verifiedAuthId = auth.id,
-                                        credential = UserCredential(
-                                            userEmail.value,
-                                            userPassword.value
-                                        ),
-                                        userInfo = HangoAuthApi.BasicUserInfo(
-                                            firstname = name.value,
-                                            lastname = name.value,
-                                            gender = gender.value
-                                        ),
-                                        pictureData = Option.None
-                                    )
-                                }
-                            }
-                        }
-                    },
-                    onSendAgain = {}
+                    authData = emailAuthData,
+                    onOtpEnter = { verifyEmailAuth(it) },
+                    onRequestEmailAuth = { requestEmailAuth() }
                 )
             )
         }

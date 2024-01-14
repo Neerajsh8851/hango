@@ -1,11 +1,14 @@
 package desidev.hango.api.model
+
+import java.time.LocalDateTime
+
 data class EmailAuthData(
-    val id: String,
+    val authId: String,
     val email: String,
     val status: Status,
     val purpose: Purpose,
-    val expAfter: Long,
-    val genAt: Long,
+    val expireAt: LocalDateTime,
+    val createdAt: LocalDateTime,
 ) {
 
     enum class Status {
@@ -14,6 +17,8 @@ data class EmailAuthData(
 
     enum class Purpose { CREATE_ACCOUNT, RESET_PASSWORD }
 
-    fun isAuthDataExpired(): Boolean = System.currentTimeMillis() > expAfter
-    fun isVerified(): Boolean = status == Status.VERIFIED
+    fun isExpired(): Boolean {
+        val now = LocalDateTime.now()
+        return expireAt.isBefore(now)
+    }
 }

@@ -12,6 +12,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -34,6 +35,8 @@ import com.arkivanov.decompose.extensions.compose.jetpack.subscribeAsState
 import com.arkivanov.decompose.value.getValue
 import desidev.hango.ui.composables.OtpInput
 import desidev.hango.ui.theme.AppTheme
+import desidev.kotlin.utils.ifNone
+import desidev.kotlin.utils.ifSome
 
 
 @Preview
@@ -47,9 +50,21 @@ fun AuthContentPreview() {
 @OptIn(ExperimentalTextApi::class)
 @Composable
 fun AuthContent(component: AuthComponent) {
+    val tag = "AuthContent"
     val userEmail by component.userEmail
     val otpValue by component.otpValue.subscribeAsState()
     val uriHandler = LocalUriHandler.current
+    val authState by component.authData.subscribeAsState()
+
+    LaunchedEffect(key1 = authState) {
+        authState.ifSome {
+            Log.d(tag, "AuthState: $it")
+        }
+
+        authState.ifNone {
+            component.requestEmailAuth()
+        }
+    }
 
     Surface(modifier = Modifier.fillMaxSize()) {
         val headingTextId = "heading_text"
@@ -147,7 +162,7 @@ fun AuthContent(component: AuthComponent) {
                 modifier = Modifier.layoutId(sendAgainBtnId)
             ) {
                 Text(text = "Did not get otp?")
-                TextButton(onClick = { component.requestNewOtp() }) {
+                TextButton(onClick = { component.requestEmailAuth() }) {
                     Text(text = "Send again")
                 }
             }

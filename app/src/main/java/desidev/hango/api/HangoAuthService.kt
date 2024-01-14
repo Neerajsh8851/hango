@@ -1,39 +1,20 @@
 package desidev.hango.api
 
+import desidev.hango.api.model.BasicInfo
 import desidev.hango.api.model.EmailAuthData
+import desidev.hango.api.model.LoginResult
+import desidev.hango.api.model.PictureData
 import desidev.hango.api.model.UserCredential
-import desidev.hango.model.Gender
 import desidev.kotlin.utils.Option
 import desidev.kotlin.utils.Result
 
 
-interface HangoAuthApi {
-    data class BasicUserInfo(
-        val firstname: String,
-        val lastname: String,
-        val gender: Gender,
-    )
-
-    data class Mimetype(
-        val contentType: String,
-        val subType: String,
-    ) {
-        override fun toString(): String {
-            return "$contentType/$subType"
-        }
-    }
-
-    class PictureData(
-        val data: ByteArray,
-        val originalFilename: String,
-        val type: Mimetype,
-    )
-
-    suspend fun login(payload: UserCredential): Result<String, Exception>
+interface HangoAuthService {
+    suspend fun login(payload: UserCredential): Result<LoginResult, Exception>
     suspend fun registerNewAccount(
         verifiedAuthId: String,
         credential: UserCredential,
-        userInfo: BasicUserInfo,
+        userInfo: BasicInfo,
         pictureData: Option<PictureData>,
     ): Result<String, Exception>
 
@@ -44,7 +25,7 @@ interface HangoAuthApi {
      * @param purpose The purpose for which the authentication data is created.
      * @return An EmailAuthResponse object containing the newly created authentication data.
      */
-    suspend fun createEmailAuth(
+    suspend fun requestEmailAuth(
         emailAddress: String,
         purpose: EmailAuthData.Purpose,
     ): Result<EmailAuthData, Exception>
@@ -56,5 +37,8 @@ interface HangoAuthApi {
      * @param authId The authentication ID associated with the authentication data.
      * @return A VerifyEmailAuthResponse object indicating whether the verification was successful.
      */
-    suspend fun verifyEmailAuth(otpValue: String, authId: String): Result<EmailAuthData, Exception>
+    suspend fun verifyEmailAuth(
+        authId: String,
+        otpValue: String,
+    ): Result<EmailAuthData, Exception>
 }

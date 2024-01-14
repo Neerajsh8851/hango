@@ -49,14 +49,12 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.arkivanov.decompose.extensions.compose.jetpack.subscribeAsState
 import desidev.hango.R
-import desidev.hango.model.Gender
+import desidev.hango.api.model.Gender
 import desidev.hango.ui.composables.DateOfBirthInput
 import desidev.hango.ui.theme.AppTheme
 import desidev.kotlin.utils.Option
 import desidev.kotlin.utils.ifNone
 import desidev.kotlin.utils.ifSome
-import desidev.kotlin.utils.runIfNone
-import desidev.kotlin.utils.runIfSome
 import kotlin.math.cos
 import kotlin.math.sin
 

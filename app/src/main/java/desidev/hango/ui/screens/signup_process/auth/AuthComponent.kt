@@ -3,21 +3,25 @@ package desidev.hango.ui.screens.signup_process.auth
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
+import desidev.hango.api.model.EmailAuthData
+import desidev.kotlin.utils.Option
 
 interface AuthComponent {
     val userEmail: Value<String>
     val otpValue: Value<String>
+    val authData: Value<Option<EmailAuthData>>
     fun updateOtp(value: String)
     fun onOtpEnter()
-    fun requestNewOtp()
+    fun requestEmailAuth()
 }
 
 
 class DefaultAuthComponent(
     context: ComponentContext,
     override val userEmail: Value<String>,
+    override val authData: Value<Option<EmailAuthData>>,
     private val onOtpEnter: OnOtpEnter,
-    private val onSendAgain: OnSendAgain,
+    private val onRequestEmailAuth: OnSendAgain,
 ) : ComponentContext by context, AuthComponent {
     fun interface OnOtpEnter {
         fun onEnter(otpValue: String)
@@ -37,19 +41,23 @@ class DefaultAuthComponent(
         onOtpEnter.onEnter(otpValue.value)
     }
 
-    override fun requestNewOtp() = onSendAgain.onSendAgain()
+    override fun requestEmailAuth() = onRequestEmailAuth.onSendAgain()
 }
 
 class FakeAuthComponent : AuthComponent {
+    override val authData: Value<Option<EmailAuthData>> = MutableValue(Option.None)
     override val userEmail: Value<String> = MutableValue("myname@example.com")
     private val _otpValue = MutableValue("45648")
     override val otpValue: Value<String> = _otpValue
     override fun updateOtp(value: String) {
+
     }
 
     override fun onOtpEnter() {
+
     }
 
-    override fun requestNewOtp() {
+    override fun requestEmailAuth() {
+
     }
 }

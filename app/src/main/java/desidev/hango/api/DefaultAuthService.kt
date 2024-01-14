@@ -1,8 +1,13 @@
 package desidev.hango.api
 
 import com.google.gson.GsonBuilder
+import desidev.hango.api.model.BasicInfo
 import desidev.hango.api.model.EmailAuthData
+import desidev.hango.api.model.LoginResult
+import desidev.hango.api.model.PictureData
 import desidev.hango.api.model.UserCredential
+import desidev.hango.api.typeadapter.LocalDateTimeTypeAdapter
+import desidev.hango.api.typeadapter.LocalDateTypeAdapter
 import desidev.kotlin.utils.Option
 import desidev.kotlin.utils.Result
 import desidev.kotlin.utils.ifSome
@@ -15,7 +20,6 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.get
-import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
@@ -28,30 +32,35 @@ import io.ktor.serialization.gson.gson
 import kotlinx.coroutines.CancellationException
 import java.io.IOException
 import java.time.Duration
+import java.time.LocalDate
+import java.time.LocalDateTime
 
-class DefaultHangoApi(private val baseUrl: String) : HangoAuthApi {
+class DefaultAuthService(private val baseUrl: String) : HangoAuthService {
     private val client by lazy {
         HttpClient(CIO) {
             install(HttpTimeout) {
                 requestTimeoutMillis = Duration.ofSeconds(15).toMillis()
             }
             install(ContentNegotiation) {
-                gson()
+                gson {
+                    registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeTypeAdapter())
+                    registerTypeAdapter(LocalDate::class.java, LocalDateTypeAdapter())
+                }
             }
         }
     }
 
-    override suspend fun login(payload: UserCredential): Result<String, Exception> {
+    override suspend fun login(payload: UserCredential): Result<LoginResult, Exception> {
         try {
             val response = client.post("$baseUrl/user/sign-in") {
                 contentType(ContentType.Application.Json)
                 setBody(payload)
             }
             return if (response.status == HttpStatusCode.OK) {
-                val jwtToken = response.body<String>()
+                val jwtToken = response.body<LoginResult>()
                 Result.Ok(jwtToken)
             } else {
-                throw RuntimeException("Invalid credentials!")
+                Result.Err(IOException("failed with response: ${response.status}: msg: ${response.bodyAsText()}"))
             }
         } catch (ex: Exception) {
             if (ex is CancellationException) throw ex
@@ -59,17 +68,20 @@ class DefaultHangoApi(private val baseUrl: String) : HangoAuthApi {
         }
     }
 
-    override suspend fun createEmailAuth(
+    override suspend fun requestEmailAuth(
         emailAddress: String,
         purpose: EmailAuthData.Purpose,
     ): Result<EmailAuthData, Exception> {
         val response = client.get("$baseUrl/email-auth/create") {
-            parameter("email", emailAddress)
-            parameter("purpose", purpose.name)
+            contentType(ContentType.Application.Json)
+            setBody(mapOf(
+                "email" to emailAddress,
+                "purpose" to purpose.name
+            ))
         }
 
         if (response.status != HttpStatusCode.OK) {
-            return Result.Err(IOException("failed with response: ${response.status}"))
+            return Result.Err(IOException("failed with response: ${response.status} ${response.bodyAsText()}"))
         }
 
         val responseData = try {
@@ -82,16 +94,19 @@ class DefaultHangoApi(private val baseUrl: String) : HangoAuthApi {
     }
 
     override suspend fun verifyEmailAuth(
-        otpValue: String,
         authId: String,
+        otpValue: String,
     ): Result<EmailAuthData, Exception> {
         val response = client.post("${baseUrl}/email-auth/verify") {
             contentType(ContentType.Application.Json)
-            setBody(mapOf("otpValue" to otpValue, "authId" to authId))
+            setBody(mapOf(
+                "authId" to authId,
+                "otp" to otpValue
+            ))
         }
 
         if (response.status != HttpStatusCode.OK) {
-            return Result.Err(IOException("failed with response: ${response.status}"))
+            return Result.Err(IOException("failed with response: ${response.status}: ${response.bodyAsText()}"))
         }
 
         val data: EmailAuthData = try {
@@ -106,8 +121,8 @@ class DefaultHangoApi(private val baseUrl: String) : HangoAuthApi {
     override suspend fun registerNewAccount(
         verifiedAuthId: String,
         credential: UserCredential,
-        userInfo: HangoAuthApi.BasicUserInfo,
-        pictureData: Option<HangoAuthApi.PictureData>,
+        userInfo: BasicInfo,
+        pictureData: Option<PictureData>,
     ): Result<String, Exception> {
 
         val jsonPayload = GsonBuilder().create().run {
@@ -126,17 +141,16 @@ class DefaultHangoApi(private val baseUrl: String) : HangoAuthApi {
                 append("jsonPayload", jsonPayload)
                 pictureData.ifSome {
                     append("image", it.data, Headers.build {
-                            append(HttpHeaders.ContentType, it.type.toString())
-                        })
+                        append(HttpHeaders.ContentType, it.type.toString())
+                    })
                     append(HttpHeaders.ContentDisposition, "filename=${it.originalFilename}")
                 }
             }
         )
 
         if (response.status != HttpStatusCode.OK) {
-            return Result.Err(IOException("failed with response: ${response.status}"))
+            return Result.Err(IOException("failed with response: ${response.status}: msg: ${response.bodyAsText()}"))
         }
-
         return Result.Ok(response.bodyAsText())
     }
 }
