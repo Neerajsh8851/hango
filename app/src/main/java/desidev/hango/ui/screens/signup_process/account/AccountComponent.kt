@@ -12,18 +12,18 @@ interface AccountComponent {
     val otpStatus: Value<OtpStatus>
     val accountCreateStatus: Value<AccountCreateStatus>
     fun setOtp(value: String)
-    fun verifyOtp(authData: EmailAuthData)
+    fun verifyOtp()
     fun requestEmailAuth()
-    fun createAccount(authData: EmailAuthData)
+    fun createAccount()
 
     sealed interface OtpStatus {
+        data object BeforeSendingOtp : OtpStatus
         data object SendingOtp : OtpStatus
         data class OtpSent(val authData: EmailAuthData) : OtpStatus
         data class OtpSentFailed(val message: String) : OtpStatus
         data class VerifyingOtp(val authData: EmailAuthData) : OtpStatus
         data class OtpVerified(val authData: EmailAuthData) : OtpStatus
-        data class OtpVerificationError(val authData: EmailAuthData, val message: String) :
-            OtpStatus
+        data class OtpVerificationError(val authData: EmailAuthData, val message: String) : OtpStatus
         data class OtpInvalid(val authData: EmailAuthData) : OtpStatus
         data class NoAttemptsLeft(val authData: EmailAuthData) : OtpStatus
         class OtpExpired(authData: EmailAuthData) : OtpStatus

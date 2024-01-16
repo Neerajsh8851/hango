@@ -9,6 +9,10 @@ sealed interface Option<out T : Any> {
 fun <T : Any> Option<T>.isSome() = this is Option.Some<T>
 fun <T : Any> Option<T>.isNone() = this is Option.None
 
+
+/**
+ * Returns the option if it is Some, otherwise returns the other option.
+ */
 fun <T : Any> Option<T>.or(other: Option<T>): Option<T> {
     return if (this is Option.Some) this else other
 }

@@ -12,10 +12,14 @@ import desidev.hango.api.model.SessionInfo
 import desidev.hango.api.model.UserCredential
 import desidev.hango.ui.componentScope
 import desidev.hango.ui.post
-import desidev.hango.ui.screens.signup_process.account.AccountComponent.*
+import desidev.hango.ui.screens.signup_process.account.AccountComponent.AccountCreateStatus
+import desidev.hango.ui.screens.signup_process.account.AccountComponent.OtpStatus
 import desidev.kotlin.utils.Option
 import desidev.kotlin.utils.Option.Some
 import desidev.kotlin.utils.Result
+import desidev.kotlin.utils.ifSome
+import desidev.kotlin.utils.isSome
+import desidev.kotlin.utils.unwrap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -48,13 +52,19 @@ class DefaultAccountComponent(
     private val _otpValue = MutableValue("")
     override val otpValue: Value<String> = _otpValue
 
-    private val _otpStatus = MutableValue<OtpStatus>(OtpStatus.SendingOtp)
+    private val _otpStatus = MutableValue<OtpStatus>(OtpStatus.BeforeSendingOtp)
     override val otpStatus: Value<OtpStatus> = _otpStatus
 
     private val _accountCreateState =
         MutableValue<AccountCreateStatus>(AccountCreateStatus.CreatingAccount)
     override val accountCreateStatus: Value<AccountCreateStatus>
         get() = _accountCreateState
+
+    init {
+        if (otpStatus.value is OtpStatus.BeforeSendingOtp) {
+            requestEmailAuth()
+        }
+    }
 
     override fun setOtp(value: String) {
         _otpValue.value = value
@@ -82,13 +92,14 @@ class DefaultAccountComponent(
         }
     }
 
-    override fun verifyOtp(authData: EmailAuthData) {
+    override fun verifyOtp() {
         val otpStatus = otpStatus.value
         if (
             otpStatus is OtpStatus.OtpSent &&
-            otpStatus.authData == authData &&
-            otpValue.value.length == 6
+            otpValue.value.length == 6 &&
+            authData.value.isSome()
         ) {
+            val authData = authData.value.unwrap()
             _otpStatus.post(OtpStatus.VerifyingOtp(authData))
 
             scope.launch {
@@ -125,50 +136,47 @@ class DefaultAccountComponent(
     }
 
 
-    override fun createAccount(authData: EmailAuthData) {
-        if (
-            authData.status == EmailAuthData.Status.VERIFIED &&
-            !authData.isExpired()
-        ) {
-            scope.launch(Dispatchers.IO) {
-                _accountCreateState.value = AccountCreateStatus.CreatingAccount
+    override fun createAccount() {
+        authData.value.ifSome {
+            if (it.status == EmailAuthData.Status.VERIFIED && it.isExpired().not()) {
+                val authData = authData.value.unwrap()
+                scope.launch(Dispatchers.IO) {
+                    _accountCreateState.value = AccountCreateStatus.CreatingAccount
 
-                val result = authService.registerNewAccount(
-                    verifiedAuthId = authData.authId,
-                    credential = UserCredential(
-                        userEmail.value,
-                        userPassword.value
-                    ),
-                    userInfo = BasicInfo(
-                        name = name.value,
-                        gender = gender.value,
-                        dateOfBirth = dob.value
-                    ),
-                    pictureData = Option.None
-                )
+                    val result = authService.registerNewAccount(
+                        verifiedAuthId = authData.authId,
+                        credential = UserCredential(
+                            userEmail.value,
+                            userPassword.value
+                        ),
+                        userInfo = BasicInfo(
+                            name = name.value,
+                            gender = gender.value,
+                            dateOfBirth = dob.value
+                        ),
+                        pictureData = Option.None
+                    )
 
-                when (result) {
+                    when (result) {
+                        is Result.Ok -> {
+                            Log.d(TAG, "createAccount: ${result.value}")
+                            _accountCreateState.value = AccountCreateStatus.AccountCreated
+                            delay(2000)
+                            onAccountCreated(result.value)
+                        }
 
-                    is Result.Ok -> {
-                        Log.d(TAG, "createAccount: ${result.value}")
-                        _accountCreateState.value = AccountCreateStatus.AccountCreated
-
-                        delay(2000)
-                        onAccountCreated(result.value)
-                    }
-
-                    is Result.Err -> {
-                        Log.d(TAG, "createAccount: ${result.err}")
-                        _accountCreateState.value =
-                            AccountCreateStatus.AccountCreateFailed(result.err.message.toString())
+                        is Result.Err -> {
+                            Log.d(TAG, "createAccount: ${result.err}")
+                            _accountCreateState.value =
+                                AccountCreateStatus.AccountCreateFailed(result.err.message.toString())
+                        }
                     }
                 }
+            } else if (it.isExpired()) {
+                val expiredAuth = it.copy(status = EmailAuthData.Status.OTP_EXP)
+                _otpStatus.post(OtpStatus.OtpExpired(expiredAuth))
+                _authData.post(Some(expiredAuth))
             }
-
-        } else if (authData.isExpired()) {
-            val expiredAuth = authData.copy(status = EmailAuthData.Status.OTP_EXP)
-            _otpStatus.post(OtpStatus.OtpExpired(authData))
-            _authData.post(Some(expiredAuth))
         }
     }
 }

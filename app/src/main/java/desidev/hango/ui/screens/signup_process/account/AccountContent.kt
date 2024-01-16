@@ -3,6 +3,7 @@ package desidev.hango.ui.screens.signup_process.account
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -42,7 +43,6 @@ import com.arkivanov.decompose.extensions.compose.jetpack.subscribeAsState
 import com.arkivanov.decompose.value.getValue
 import desidev.hango.ui.composables.OtpStatus
 import desidev.hango.ui.theme.AppTheme
-import desidev.kotlin.utils.ifSome
 
 
 @Preview
@@ -124,9 +124,10 @@ fun AccountContent(component: AccountComponent) {
 
 
             OtpStatus(
-                otpState = otpStatus,
+                otpStatus = otpStatus,
                 email = userEmail,
                 modifier = Modifier.layoutId(otpStatusId)
+                    .fillMaxWidth(0.65f)
             )
 
             OutlinedTextField(
@@ -144,9 +145,7 @@ fun AccountContent(component: AccountComponent) {
                 trailingIcon = {
                     IconButton(
                         onClick = {
-                            component.run {
-                                authData.value.ifSome { verifyOtp(it) }
-                            }
+                            component.verifyOtp()
                         },
                         enabled = otpStatus is AccountComponent.OtpStatus.OtpSent || otpStatus is AccountComponent.OtpStatus.OtpInvalid
                     ) {
@@ -156,12 +155,9 @@ fun AccountContent(component: AccountComponent) {
                         )
                     }
                 },
-                isError = otpStatus is AccountComponent.OTPState.InvalidOtp,
+                isError = otpStatus is AccountComponent.OtpStatus.OtpInvalid,
                 keyboardActions = KeyboardActions(onSend = {
-                    val state = otpStatus
-                    if (state is AccountComponent.OTPState.OtpSent) {
-                        component.verifyOtp(state.authData)
-                    }
+                    component.verifyOtp()
                 }),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,

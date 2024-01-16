@@ -1,5 +1,6 @@
 package desidev.hango.ui.composables
 
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -14,7 +15,7 @@ private fun OtpStatusPreview() {
     AppTheme {
         OtpStatus(
             email = "someuser@desidev.online",
-            otpState = AccountComponent.OTPState.SendingOtp
+            otpStatus = AccountComponent.OtpStatus.SendingOtp
         )
     }
 }
@@ -23,38 +24,69 @@ private fun OtpStatusPreview() {
 fun OtpStatus(
     modifier: Modifier = Modifier,
     email: String,
-    otpState: AccountComponent.OTPState
+    otpStatus: AccountComponent.OtpStatus
 ) {
-    var statusText: String = ""
-
-    when (otpState) {
-        is AccountComponent.OTPState.SendingOtp -> {
-            statusText = "Sending OTP to $email"
+    when (otpStatus) {
+        is AccountComponent.OtpStatus.SendingOtp, AccountComponent.OtpStatus.BeforeSendingOtp -> {
+            Text(text = "Sending Otp to your email \n $email", modifier = modifier)
         }
 
-        is AccountComponent.OTPState.OtpSent -> {
-            statusText = "OTP sent to $email"
+        is AccountComponent.OtpStatus.OtpSent -> {
+            Text(
+                text = "Otp sent to your email\n $email",
+                modifier = modifier
+            )
         }
 
-        is AccountComponent.OTPState.OtpSentFailed -> {
-            statusText = "Sending OTP failed"
+        is AccountComponent.OtpStatus.OtpVerified -> {
+            Text(text = "Otp verified!", modifier = modifier)
         }
 
-        is AccountComponent.OTPState.VerifyingOtp -> {
-            statusText = "Verifying OTP"
+        is AccountComponent.OtpStatus.OtpVerificationError -> {
+            Text(
+                text = "Otp verification failed!",
+                color = colorScheme.error,
+                modifier = modifier
+            )
         }
 
-        is AccountComponent.OTPState.OtpVerificationFailed -> {
-            statusText = "OTP verification failed"
+        is AccountComponent.OtpStatus.NoAttemptsLeft -> {
+            Text(
+                text = "No attempts left!",
+                color = colorScheme.error,
+                modifier = modifier
+            )
         }
 
-        else -> {
-        /*ignore */
+        is AccountComponent.OtpStatus.OtpExpired -> {
+            Text(
+                text = "Otp expired!",
+                color = colorScheme.error,
+                modifier = modifier
+            )
+        }
+
+        is AccountComponent.OtpStatus.OtpInvalid -> {
+            Text(
+                text = "Otp invalid!",
+                color = colorScheme.error,
+                modifier = modifier
+            )
+        }
+
+        is AccountComponent.OtpStatus.OtpSentFailed -> {
+            Text(
+                text = "Otp sending failed!",
+                color = colorScheme.error,
+                modifier = modifier
+            )
+        }
+
+        is AccountComponent.OtpStatus.VerifyingOtp -> {
+            Text(
+                text = "Verifying otp...",
+                modifier = modifier
+            )
         }
     }
-
-    Text(
-        modifier = modifier,
-        text = statusText
-    )
 }

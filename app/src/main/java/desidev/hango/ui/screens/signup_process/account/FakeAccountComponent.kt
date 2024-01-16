@@ -3,6 +3,7 @@ package desidev.hango.ui.screens.signup_process.account
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 import desidev.hango.api.model.EmailAuthData
+import desidev.kotlin.utils.Option
 
 class FakeAccountComponent(
 ) : AccountComponent {
@@ -10,11 +11,14 @@ class FakeAccountComponent(
     private val _otpValue = MutableValue("45648")
     override val otpValue: Value<String> = _otpValue
 
-    override val otpState: Value<AccountComponent.OTPState> =
-        MutableValue(AccountComponent.OTPState.SendingOtp)
+    override val authData: Value<Option<EmailAuthData>>
+        get() = MutableValue(Option.None)
 
-    override val accountCreateState: Value<AccountComponent.AccountCreateStatus> =
-        MutableValue(AccountComponent.AccountCreateStatus.BeforeCreatingAccount)
+    override val otpStatus: Value<AccountComponent.OtpStatus>
+        get() = MutableValue(AccountComponent.OtpStatus.SendingOtp)
+
+    override val accountCreateStatus: Value<AccountComponent.AccountCreateStatus>
+        get() = MutableValue(AccountComponent.AccountCreateStatus.CreatingAccount)
 
     override fun requestEmailAuth() {
     }
@@ -23,9 +27,9 @@ class FakeAccountComponent(
         _otpValue.value = value
     }
 
-    override fun verifyOtp(authData: EmailAuthData) {
+    override fun verifyOtp() {
     }
 
-    override fun createAccount(authData: EmailAuthData) {
+    override fun createAccount() {
     }
 }
