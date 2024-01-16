@@ -11,7 +11,7 @@ import org.junit.Test
  *
  * See [testing documentation](http://d.android.com/tools/testing).
  */
-class AuthServiceTest {
+class AccountServiceTest {
     private val authService = DefaultAuthService("http://139.59.85.69")
 
     @Test

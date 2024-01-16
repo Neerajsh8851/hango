@@ -6,8 +6,8 @@ import androidx.activity.compose.setContent
 import com.arkivanov.decompose.ExperimentalDecomposeApi
 import com.arkivanov.decompose.retainedComponent
 import desidev.hango.api.DefaultAuthService
-import desidev.hango.ui.screens.signup_process.DefaultSignUpProcessComponent
-import desidev.hango.ui.screens.signup_process.SignUpProcessContent
+import desidev.hango.ui.screens.signup_process.DefaultSignUpComponent
+import desidev.hango.ui.screens.signup_process.SignUpContent
 import desidev.hango.ui.theme.AppTheme
 
 
@@ -17,12 +17,18 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val root = retainedComponent {
-            DefaultSignUpProcessComponent(it, DefaultAuthService("http://139.59.85.69"))
+            DefaultSignUpComponent(
+                context = it,
+                authService = DefaultAuthService("http://139.59.85.69"),
+                onAccountCreated = {
+
+                }
+            )
         }
 
         setContent {
             AppTheme {
-                SignUpProcessContent(component = root)
+                SignUpContent(component = root)
             }
         }
     }

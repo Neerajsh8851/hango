@@ -1,5 +1,6 @@
 package desidev.hango.ui
 
+import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.essenty.lifecycle.LifecycleOwner
 import com.arkivanov.essenty.lifecycle.doOnDestroy
 import kotlinx.coroutines.CoroutineScope
@@ -13,3 +14,11 @@ fun LifecycleOwner.componentScope(coroutineContext: CoroutineContext = Dispatche
         lifecycle.doOnDestroy(scope::cancel)
     }
 }
+
+/**
+ * Post a new value to the [MutableValue]
+ */
+fun <T: Any> MutableValue<T>.post(new: T) {
+    value = new
+}
+

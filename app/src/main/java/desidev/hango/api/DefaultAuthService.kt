@@ -5,11 +5,13 @@ import desidev.hango.api.model.BasicInfo
 import desidev.hango.api.model.EmailAuthData
 import desidev.hango.api.model.LoginResult
 import desidev.hango.api.model.PictureData
+import desidev.hango.api.model.SessionInfo
 import desidev.hango.api.model.UserCredential
 import desidev.hango.api.typeadapter.LocalDateTimeTypeAdapter
 import desidev.hango.api.typeadapter.LocalDateTypeAdapter
 import desidev.kotlin.utils.Option
 import desidev.kotlin.utils.Result
+import desidev.kotlin.utils.Result.*
 import desidev.kotlin.utils.ifSome
 import io.ktor.client.HttpClient
 import io.ktor.client.call.NoTransformationFoundException
@@ -58,13 +60,13 @@ class DefaultAuthService(private val baseUrl: String) : HangoAuthService {
             }
             return if (response.status == HttpStatusCode.OK) {
                 val jwtToken = response.body<LoginResult>()
-                Result.Ok(jwtToken)
+                Ok(jwtToken)
             } else {
-                Result.Err(IOException("failed with response: ${response.status}: msg: ${response.bodyAsText()}"))
+                Err(IOException("failed with response: ${response.status}: msg: ${response.bodyAsText()}"))
             }
         } catch (ex: Exception) {
             if (ex is CancellationException) throw ex
-            return Result.Err(ex)
+            return Err(ex)
         }
     }
 
@@ -74,23 +76,25 @@ class DefaultAuthService(private val baseUrl: String) : HangoAuthService {
     ): Result<EmailAuthData, Exception> {
         val response = client.get("$baseUrl/email-auth/create") {
             contentType(ContentType.Application.Json)
-            setBody(mapOf(
-                "email" to emailAddress,
-                "purpose" to purpose.name
-            ))
+            setBody(
+                mapOf(
+                    "email" to emailAddress,
+                    "purpose" to purpose.name
+                )
+            )
         }
 
         if (response.status != HttpStatusCode.OK) {
-            return Result.Err(IOException("failed with response: ${response.status} ${response.bodyAsText()}"))
+            return Err(IOException("failed with response: ${response.status} ${response.bodyAsText()}"))
         }
 
         val responseData = try {
             response.body<EmailAuthData>()
         } catch (ex: NoTransformationFoundException) {
-            return Result.Err(ex)
+            return Err(ex)
         }
 
-        return Result.Ok(responseData)
+        return Ok(responseData)
     }
 
     override suspend fun verifyEmailAuth(
@@ -99,23 +103,25 @@ class DefaultAuthService(private val baseUrl: String) : HangoAuthService {
     ): Result<EmailAuthData, Exception> {
         val response = client.post("${baseUrl}/email-auth/verify") {
             contentType(ContentType.Application.Json)
-            setBody(mapOf(
-                "authId" to authId,
-                "otp" to otpValue
-            ))
+            setBody(
+                mapOf(
+                    "authId" to authId,
+                    "otp" to otpValue
+                )
+            )
         }
 
         if (response.status != HttpStatusCode.OK) {
-            return Result.Err(IOException("failed with response: ${response.status}: ${response.bodyAsText()}"))
+            return Err(IOException("failed with response: ${response.status}: ${response.bodyAsText()}"))
         }
 
         val data: EmailAuthData = try {
             response.body()
         } catch (ex: NoTransformationFoundException) {
-            return Result.Err(ex)
+            return Err(ex)
         }
 
-        return Result.Ok(data)
+        return Ok(data)
     }
 
     override suspend fun registerNewAccount(
@@ -123,34 +129,44 @@ class DefaultAuthService(private val baseUrl: String) : HangoAuthService {
         credential: UserCredential,
         userInfo: BasicInfo,
         pictureData: Option<PictureData>,
-    ): Result<String, Exception> {
-
-        val jsonPayload = GsonBuilder().create().run {
-            toJson(
+    ): Result<SessionInfo, Exception> {
+        return try {
+            val jsonPayload = GsonBuilder().create().toJson(
                 mapOf(
                     "authId" to verifiedAuthId,
                     "credential" to credential,
                     "basicInfo" to userInfo
                 )
             )
-        }
 
-        val response = client.submitFormWithBinaryData(
-            url = "$baseUrl/account/create",
-            formData = formData {
-                append("jsonPayload", jsonPayload)
-                pictureData.ifSome {
-                    append("image", it.data, Headers.build {
-                        append(HttpHeaders.ContentType, it.type.toString())
-                    })
-                    append(HttpHeaders.ContentDisposition, "filename=${it.originalFilename}")
+            val response = client.submitFormWithBinaryData(
+                url = "$baseUrl/account/create",
+                formData = formData {
+                    append("jsonPayload", jsonPayload)
+                    pictureData.ifSome {
+                        append("image", it.data, Headers.build {
+                            append(HttpHeaders.ContentType, it.type.toString())
+                        })
+                        append(
+                            HttpHeaders.ContentDisposition,
+                            "filename=${it.originalFilename}"
+                        )
+                    }
                 }
-            }
-        )
+            )
 
-        if (response.status != HttpStatusCode.OK) {
-            return Result.Err(IOException("failed with response: ${response.status}: msg: ${response.bodyAsText()}"))
+            if (response.status != HttpStatusCode.OK) {
+                throw IOException("failed with response: ${response.status} ${response.bodyAsText()}")
+            }
+
+            Ok(response.body())
+
+        } catch (ex: IOException) {
+            Err(ex)
+        } catch (ex: NoTransformationFoundException) {
+            Err(ex)
+        } catch (ex: CancellationException) {
+            throw ex
         }
-        return Result.Ok(response.bodyAsText())
     }
 }

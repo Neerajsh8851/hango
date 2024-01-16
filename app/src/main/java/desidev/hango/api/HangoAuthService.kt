@@ -4,6 +4,7 @@ import desidev.hango.api.model.BasicInfo
 import desidev.hango.api.model.EmailAuthData
 import desidev.hango.api.model.LoginResult
 import desidev.hango.api.model.PictureData
+import desidev.hango.api.model.SessionInfo
 import desidev.hango.api.model.UserCredential
 import desidev.kotlin.utils.Option
 import desidev.kotlin.utils.Result
@@ -16,7 +17,7 @@ interface HangoAuthService {
         credential: UserCredential,
         userInfo: BasicInfo,
         pictureData: Option<PictureData>,
-    ): Result<String, Exception>
+    ): Result<SessionInfo, Exception>
 
     /**
      * Creates a new authentication data with the given email address and purpose.
