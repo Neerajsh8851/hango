@@ -9,6 +9,7 @@ import com.google.gson.JsonSerializer
 import java.lang.reflect.Type
 import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.ZoneOffset
 
 
@@ -20,6 +21,6 @@ class LocalDateTimeTypeAdapter : JsonSerializer<LocalDateTime>, JsonDeserializer
 
     override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): LocalDateTime {
         val epochMillis = json.asLong
-        return LocalDateTime.ofInstant(Instant.ofEpochMilli(epochMillis), ZoneOffset.UTC)
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(epochMillis), ZoneId.systemDefault())
     }
 }

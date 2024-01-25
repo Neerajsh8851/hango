@@ -1,6 +1,9 @@
 package desidev.hango.api.model
 
 import java.time.LocalDateTime
+import java.time.ZoneOffset
+import java.util.Date
+import java.util.TimeZone
 
 
 /**
@@ -56,7 +59,7 @@ data class EmailAuthData(
      * @return True if the authentication has expired, false otherwise.
      */
     fun isExpired(): Boolean {
-        val now = LocalDateTime.now()
+        val now = LocalDateTime.now(ZoneOffset.UTC)
         return expireAt.isBefore(now)
     }
 }

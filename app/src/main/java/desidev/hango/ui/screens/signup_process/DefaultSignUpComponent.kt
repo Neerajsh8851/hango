@@ -11,7 +11,7 @@ import desidev.hango.api.model.Gender
 import desidev.hango.ui.screens.signup_process.account.DefaultAccountComponent
 import desidev.hango.ui.screens.signup_process.profile.DefaultProfileComponent
 import desidev.hango.ui.screens.signup_process.signup.DefaultSignUpComponent
-import desidev.kotlin.utils.Option
+import desidev.kotlinutils.Option
 import java.time.LocalDate
 
 class DefaultSignUpComponent(

@@ -1,8 +1,5 @@
 import java.net.URI
 
-include(":kotlinutils")
-
-
 pluginManagement {
     repositories {
         google()
@@ -17,6 +14,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        mavenLocal()
         maven { url = URI("https://jitpack.io") }
     }
 }

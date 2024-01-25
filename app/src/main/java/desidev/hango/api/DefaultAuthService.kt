@@ -9,10 +9,11 @@ import desidev.hango.api.model.SessionInfo
 import desidev.hango.api.model.UserCredential
 import desidev.hango.api.typeadapter.LocalDateTimeTypeAdapter
 import desidev.hango.api.typeadapter.LocalDateTypeAdapter
-import desidev.kotlin.utils.Option
-import desidev.kotlin.utils.Result
-import desidev.kotlin.utils.Result.*
-import desidev.kotlin.utils.ifSome
+import desidev.kotlinutils.Option
+import desidev.kotlinutils.Result
+import desidev.kotlinutils.Result.Err
+import desidev.kotlinutils.Result.Ok
+import desidev.kotlinutils.ifSome
 import io.ktor.client.HttpClient
 import io.ktor.client.call.NoTransformationFoundException
 import io.ktor.client.call.body

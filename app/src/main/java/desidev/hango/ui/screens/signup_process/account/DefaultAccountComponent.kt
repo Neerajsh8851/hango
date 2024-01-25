@@ -13,13 +13,14 @@ import desidev.hango.api.model.UserCredential
 import desidev.hango.ui.componentScope
 import desidev.hango.ui.post
 import desidev.hango.ui.screens.signup_process.account.AccountComponent.AccountCreateStatus
+import desidev.hango.ui.screens.signup_process.account.AccountComponent.AccountCreateStatus.*
 import desidev.hango.ui.screens.signup_process.account.AccountComponent.OtpStatus
-import desidev.kotlin.utils.Option
-import desidev.kotlin.utils.Option.Some
-import desidev.kotlin.utils.Result
-import desidev.kotlin.utils.ifSome
-import desidev.kotlin.utils.isSome
-import desidev.kotlin.utils.unwrap
+import desidev.kotlinutils.Option
+import desidev.kotlinutils.Option.Some
+import desidev.kotlinutils.Result
+import desidev.kotlinutils.ifSome
+import desidev.kotlinutils.isSome
+import desidev.kotlinutils.unwrap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -56,7 +57,7 @@ class DefaultAccountComponent(
     override val otpStatus: Value<OtpStatus> = _otpStatus
 
     private val _accountCreateState =
-        MutableValue<AccountCreateStatus>(AccountCreateStatus.CreatingAccount)
+        MutableValue<AccountCreateStatus>(CreatingAccount)
     override val accountCreateStatus: Value<AccountCreateStatus>
         get() = _accountCreateState
 
@@ -72,8 +73,7 @@ class DefaultAccountComponent(
 
     override fun requestEmailAuth() {
         scope.launch {
-            _otpStatus.value = OtpStatus.SendingOtp
-
+            _otpStatus.post(OtpStatus.SendingOtp)
             val result =
                 authService.requestEmailAuth(userEmail.value, EmailAuthData.Purpose.CREATE_ACCOUNT)
 
@@ -102,12 +102,13 @@ class DefaultAccountComponent(
             val authData = authData.value.unwrap()
             _otpStatus.post(OtpStatus.VerifyingOtp(authData))
 
-            scope.launch {
+            scope.launch(Dispatchers.IO) {
                 when (val result = authService.verifyEmailAuth(authData.authId, otpValue.value)) {
                     is Result.Ok -> {
                         when (result.value.status) {
                             EmailAuthData.Status.VERIFIED -> {
                                 _otpStatus.post(OtpStatus.OtpVerified(result.value))
+                                createAccount()
                             }
 
                             EmailAuthData.Status.NO_ATTEMPT_LEFT -> {
@@ -141,7 +142,7 @@ class DefaultAccountComponent(
             if (it.status == EmailAuthData.Status.VERIFIED && it.isExpired().not()) {
                 val authData = authData.value.unwrap()
                 scope.launch(Dispatchers.IO) {
-                    _accountCreateState.value = AccountCreateStatus.CreatingAccount
+                    _accountCreateState.post(CreatingAccount)
 
                     val result = authService.registerNewAccount(
                         verifiedAuthId = authData.authId,
@@ -157,24 +158,25 @@ class DefaultAccountComponent(
                         pictureData = Option.None
                     )
 
+                    delay(3000)
+
                     when (result) {
                         is Result.Ok -> {
                             Log.d(TAG, "createAccount: ${result.value}")
-                            _accountCreateState.value = AccountCreateStatus.AccountCreated
+                            _accountCreateState.post(AccountCreated)
                             delay(2000)
                             onAccountCreated(result.value)
                         }
 
                         is Result.Err -> {
                             Log.d(TAG, "createAccount: ${result.err}")
-                            _accountCreateState.value =
-                                AccountCreateStatus.AccountCreateFailed(result.err.message.toString())
+                            _accountCreateState.post(AccountCreateFailed(result.err.message.toString()))
                         }
                     }
                 }
             } else if (it.isExpired()) {
                 val expiredAuth = it.copy(status = EmailAuthData.Status.OTP_EXP)
-                _otpStatus.post(OtpStatus.OtpExpired(expiredAuth))
+                _otpStatus.post(OtpStatus.OtpExpired)
                 _authData.post(Some(expiredAuth))
             }
         }

@@ -54,8 +54,6 @@ android {
 }
 
 dependencies {
-    implementation(project(":kotlinutils"))
-
     implementation(libs.androidx.ktx)
     implementation(libs.androidx.lifecyle)
     implementation(libs.androidx.composeActivity)
@@ -90,4 +88,7 @@ dependencies {
     implementation(libs.sheets.compose.core)
     implementation(libs.sheets.compose.calender)
     implementation(libs.coil)
+
+    implementation(libs.kotlin.utils)
+    implementation(libs.compose.cropper)
 }

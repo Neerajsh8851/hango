@@ -52,9 +52,9 @@ import desidev.hango.R
 import desidev.hango.api.model.Gender
 import desidev.hango.ui.composables.DateOfBirthInput
 import desidev.hango.ui.theme.AppTheme
-import desidev.kotlin.utils.Option
-import desidev.kotlin.utils.ifNone
-import desidev.kotlin.utils.ifSome
+import desidev.kotlinutils.Option
+import desidev.kotlinutils.ifNone
+import desidev.kotlinutils.ifSome
 import kotlin.math.cos
 import kotlin.math.sin
 

@@ -3,7 +3,7 @@ package desidev.hango.ui.screens.signup_process.account
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 import desidev.hango.api.model.EmailAuthData
-import desidev.kotlin.utils.Option
+import desidev.kotlinutils.Option
 
 class FakeAccountComponent(
 ) : AccountComponent {

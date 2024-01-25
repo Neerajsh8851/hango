@@ -29,7 +29,7 @@ import java.time.format.FormatStyle
 @Composable
 fun DateInputPreview() {
     AppTheme {
-        var date by rememberValueState(value = LocalDate.now())
+        var date by rememberValueAsState(value = LocalDate.now())
         DateOfBirthInput(selectedDate = date, onDateSelected = { date = it })
     }
 }
@@ -41,7 +41,7 @@ fun DateOfBirthInput(
     selectedDate: LocalDate,
     onDateSelected: (LocalDate) -> Unit,
 ) {
-    var datePickerOpen by rememberValueState(value = false)
+    var datePickerOpen by rememberValueAsState(value = false)
     val dateFormatter  = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
 
     OutlinedTextField(

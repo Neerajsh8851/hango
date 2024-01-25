@@ -6,8 +6,8 @@ import desidev.hango.api.model.LoginResult
 import desidev.hango.api.model.PictureData
 import desidev.hango.api.model.SessionInfo
 import desidev.hango.api.model.UserCredential
-import desidev.kotlin.utils.Option
-import desidev.kotlin.utils.Result
+import desidev.kotlinutils.Option
+import desidev.kotlinutils.Result
 
 
 interface HangoAuthService {

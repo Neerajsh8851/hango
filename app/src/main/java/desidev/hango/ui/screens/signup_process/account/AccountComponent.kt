@@ -2,7 +2,7 @@ package desidev.hango.ui.screens.signup_process.account
 
 import com.arkivanov.decompose.value.Value
 import desidev.hango.api.model.EmailAuthData
-import desidev.kotlin.utils.Option
+import desidev.kotlinutils.Option
 
 interface AccountComponent {
     val userEmail: Value<String>
@@ -26,7 +26,7 @@ interface AccountComponent {
         data class OtpVerificationError(val authData: EmailAuthData, val message: String) : OtpStatus
         data class OtpInvalid(val authData: EmailAuthData) : OtpStatus
         data class NoAttemptsLeft(val authData: EmailAuthData) : OtpStatus
-        class OtpExpired(authData: EmailAuthData) : OtpStatus
+        data object OtpExpired : OtpStatus
     }
 
     sealed interface AccountCreateStatus {

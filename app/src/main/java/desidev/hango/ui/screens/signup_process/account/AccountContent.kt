@@ -41,7 +41,9 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.ConstraintSet
 import com.arkivanov.decompose.extensions.compose.jetpack.subscribeAsState
 import com.arkivanov.decompose.value.getValue
+import desidev.hango.ui.composables.CreateAccountDialog
 import desidev.hango.ui.composables.OtpStatus
+import desidev.hango.ui.screens.signup_process.account.AccountComponent.OtpStatus
 import desidev.hango.ui.theme.AppTheme
 
 
@@ -126,7 +128,8 @@ fun AccountContent(component: AccountComponent) {
             OtpStatus(
                 otpStatus = otpStatus,
                 email = userEmail,
-                modifier = Modifier.layoutId(otpStatusId)
+                modifier = Modifier
+                    .layoutId(otpStatusId)
                     .fillMaxWidth(0.65f)
             )
 
@@ -147,7 +150,7 @@ fun AccountContent(component: AccountComponent) {
                         onClick = {
                             component.verifyOtp()
                         },
-                        enabled = otpStatus is AccountComponent.OtpStatus.OtpSent || otpStatus is AccountComponent.OtpStatus.OtpInvalid
+                        enabled = otpStatus is OtpStatus.OtpSent || otpStatus is OtpStatus.OtpInvalid
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
@@ -155,7 +158,7 @@ fun AccountContent(component: AccountComponent) {
                         )
                     }
                 },
-                isError = otpStatus is AccountComponent.OtpStatus.OtpInvalid,
+                isError = otpStatus is OtpStatus.OtpInvalid,
                 keyboardActions = KeyboardActions(onSend = {
                     component.verifyOtp()
                 }),
@@ -201,4 +204,11 @@ fun AccountContent(component: AccountComponent) {
             )
         }
     }
+
+
+    if (otpStatus is OtpStatus.OtpVerified) {
+        CreateAccountDialog(accountCreateStatus = accountCreateStatus)
+    }
 }
+
+

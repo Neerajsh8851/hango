@@ -2,7 +2,7 @@ package desidev.hango
 
 import desidev.hango.api.DefaultAuthService
 import desidev.hango.api.model.EmailAuthData
-import desidev.kotlin.utils.Result
+import desidev.kotlinutils.Result
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
@@ -17,12 +17,16 @@ class AccountServiceTest {
     @Test
     fun createEmailAuth_Test(): Unit = runBlocking {
         val result = authService.requestEmailAuth(
-                "neerajshdev@gmail.com",
-                EmailAuthData.Purpose.CREATE_ACCOUNT
-            )
+            "neerajshdev@gmail.com",
+            EmailAuthData.Purpose.CREATE_ACCOUNT
+        )
         when (result) {
             is Result.Err -> println(result.err)
-            is Result.Ok -> println(result.value)
+            is Result.Ok -> {
+                println(result.value)
+                println("is expired = ${result.value.isExpired()}")
+            }
+
         }
     }
 

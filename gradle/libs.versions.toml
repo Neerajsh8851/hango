@@ -6,7 +6,7 @@ kotlinCompilerExtensionVersion = "1.5.7"
 androidxLifeCycle = "2.6.2"
 activityCompose = "1.8.2"
 composeBom = "2023.10.01"
-androidx_material3 = "1.2.0-alpha12"
+androidx_material3 = "1.2.0-beta02"
 #junit = "4.13.2"
 #testExtJunit = "1.1.5"
 #espressoCore = "3.5.1"
@@ -21,12 +21,11 @@ kotlinGradlePlugin = "1.9.21"
 ohTeePeeVersion = "1.0.6"
 
 coil = "2.5.0"
-org-jetbrains-kotlin-jvm = "1.9.21"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGraldePlugin" }
 kotlin-plugin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlinGradlePlugin" }
-org-jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "org-jetbrains-kotlin-jvm" }
+org-jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlinGradlePlugin" }
 
 
 [libraries]
@@ -59,4 +58,7 @@ sheets-compose-calender = {module = "com.maxkeppeler.sheets-compose-dialogs:cale
 coil = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 
 
+# maven local
+kotlin-utils = { module = "online.desidev:kotlinutils", version = "1.0.0" }
+compose-cropper = { module = "com.smarttoolfactory:compose-cropper", version = "0.4.0" }
 

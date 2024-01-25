@@ -3,7 +3,7 @@ package desidev.hango.ui.screens.signup_process.profile
 import android.net.Uri
 import com.arkivanov.decompose.value.Value
 import desidev.hango.api.model.Gender
-import desidev.kotlin.utils.Option
+import desidev.kotlinutils.Option
 import java.time.LocalDate
 
 

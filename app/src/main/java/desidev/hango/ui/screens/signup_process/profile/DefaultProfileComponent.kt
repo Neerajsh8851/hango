@@ -6,7 +6,7 @@ import com.arkivanov.decompose.value.Value
 import desidev.hango.api.model.Gender
 import desidev.hango.ui.screens.signup_process.profile.ProfileComponent.*
 import desidev.hango.ui.screens.signup_process.signup.OnSubmitClick
-import desidev.kotlin.utils.Option
+import desidev.kotlinutils.Option
 import java.time.LocalDate
 
 class DefaultProfileComponent(
@@ -40,6 +40,6 @@ class DefaultProfileComponent(
     }
 
     override fun onSubmitClick() {
-        onSubmitClick.onSubmit()
+        onSubmitClick.invoke()
     }
 }
