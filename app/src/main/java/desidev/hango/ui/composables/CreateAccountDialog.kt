@@ -30,10 +30,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import desidev.hango.R
-import desidev.hango.ui.screens.signup_process.account.AccountComponent.AccountCreateStatus
-import desidev.hango.ui.screens.signup_process.account.AccountComponent.AccountCreateStatus.AccountCreateFailed
-import desidev.hango.ui.screens.signup_process.account.AccountComponent.AccountCreateStatus.AccountCreated
-import desidev.hango.ui.screens.signup_process.account.AccountComponent.AccountCreateStatus.CreatingAccount
+import desidev.hango.ui.screens.signup.account.AccountComponent.AccountCreateStatus
+import desidev.hango.ui.screens.signup.account.AccountComponent.AccountCreateStatus.AccountCreateFailed
+import desidev.hango.ui.screens.signup.account.AccountComponent.AccountCreateStatus.AccountCreated
+import desidev.hango.ui.screens.signup.account.AccountComponent.AccountCreateStatus.CreatingAccount
 import desidev.hango.ui.theme.AppTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive

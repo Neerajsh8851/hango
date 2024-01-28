@@ -1,38 +1,55 @@
 package desidev.hango.ui.screens.signin
 
 import com.arkivanov.decompose.ComponentContext
-import kotlinx.coroutines.flow.StateFlow
+import com.arkivanov.decompose.value.MutableValue
+import com.arkivanov.decompose.value.Value
+import desidev.hango.ui.post
 
-class DefaultSignInComponent(context: ComponentContext) : SignInComponent,
+typealias OnSignupClick = () -> Unit
+typealias OnSigninClick = () -> Unit
+typealias OnForgetPasswordClick = () -> Unit
+
+class DefaultSignInComponent(
+    context: ComponentContext,
+    private val onSignupClick: OnSignupClick,
+    private val onSigninClick: OnSigninClick,
+    private val onForgetPasswordClick: OnForgetPasswordClick
+) :
+    SignInComponent,
     ComponentContext by context {
-    override val userEmail: StateFlow<String>
-        get() = TODO("Not yet implemented")
-    override val userPassword: StateFlow<String>
-        get() = TODO("Not yet implemented")
-    override val hidePassword: StateFlow<Boolean>
-        get() = TODO("Not yet implemented")
+    data class Model(
+        val userEmail: MutableValue<String>,
+        val userPassword: MutableValue<String>,
+        val hidePassword: MutableValue<Boolean>
+    )
+
+    private val model = Model(MutableValue(""), MutableValue(""), MutableValue(false))
+
+    override val hidePassword: Value<Boolean> = model.hidePassword
+    override val userEmail: Value<String> = model.userEmail
+    override val userPassword: Value<String> = model.userPassword
 
     override fun updateEmail(email: String) {
-        TODO("Not yet implemented")
+        model.userEmail.post(email)
     }
 
     override fun updatePassword(password: String) {
-        TODO("Not yet implemented")
+        model.userPassword.post(password)
     }
 
     override fun togglePasswordVisibility() {
-        TODO("Not yet implemented")
+        model.hidePassword.post(!model.hidePassword.value)
     }
 
     override fun forgetPasswordClick() {
-        TODO("Not yet implemented")
+        onForgetPasswordClick()
     }
 
     override fun signUpClick() {
-        TODO("Not yet implemented")
+        onSignupClick()
     }
 
     override fun signInClick() {
-        TODO("Not yet implemented")
+        onSigninClick
     }
 }

@@ -60,5 +60,5 @@ coil = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 
 # maven local
 kotlin-utils = { module = "online.desidev:kotlinutils", version = "1.0.0" }
-compose-cropper = { module = "com.smarttoolfactory:compose-cropper", version = "0.4.0" }
+compose-cropper = { module = "com.github.SmartToolFactory:Compose-Cropper", version = "0.4.0" }
 

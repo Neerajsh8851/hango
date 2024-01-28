@@ -5,7 +5,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import desidev.hango.ui.screens.signup_process.account.AccountComponent
+import desidev.hango.ui.screens.signup.account.AccountComponent
 import desidev.hango.ui.theme.AppTheme
 
 

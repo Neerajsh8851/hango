@@ -7,8 +7,8 @@ import androidx.activity.compose.setContent
 import com.arkivanov.decompose.ExperimentalDecomposeApi
 import com.arkivanov.decompose.retainedComponent
 import desidev.hango.api.DefaultAuthService
-import desidev.hango.ui.screens.signup_process.DefaultSignUpComponent
-import desidev.hango.ui.screens.signup_process.SignUpContent
+import desidev.hango.ui.screens.signup.DefaultSignUpComponent
+import desidev.hango.ui.screens.signup.SignUpContent
 import desidev.hango.ui.theme.AppTheme
 
 
@@ -20,6 +20,11 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalDecomposeApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        Thread.setDefaultUncaughtExceptionHandler { t, e ->
+            Log.e(TAG, "Uncaught exception", e)
+            finish()
+        }
 
         val root = retainedComponent { componentContext ->
             DefaultSignUpComponent(

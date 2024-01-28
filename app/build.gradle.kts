@@ -3,8 +3,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.plugin)
     id("kotlin-parcelize")
-//    kotlin("plugin.serialization") version "1.9.21"
 }
+
 
 android {
     namespace = "desidev.hango"

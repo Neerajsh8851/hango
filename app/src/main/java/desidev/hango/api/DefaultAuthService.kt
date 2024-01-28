@@ -32,6 +32,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.gson.gson
+import io.ktor.util.InternalAPI
 import kotlinx.coroutines.CancellationException
 import java.io.IOException
 import java.time.Duration
@@ -54,12 +55,12 @@ class DefaultAuthService(private val baseUrl: String) : HangoAuthService {
     }
 
     override suspend fun login(payload: UserCredential): Result<LoginResult, Exception> {
-        try {
+        return try {
             val response = client.post("$baseUrl/user/sign-in") {
                 contentType(ContentType.Application.Json)
                 setBody(payload)
             }
-            return if (response.status == HttpStatusCode.OK) {
+            if (response.status == HttpStatusCode.OK) {
                 val jwtToken = response.body<LoginResult>()
                 Ok(jwtToken)
             } else {
@@ -67,7 +68,7 @@ class DefaultAuthService(private val baseUrl: String) : HangoAuthService {
             }
         } catch (ex: Exception) {
             if (ex is CancellationException) throw ex
-            return Err(ex)
+            Err(ex)
         }
     }
 
@@ -125,6 +126,7 @@ class DefaultAuthService(private val baseUrl: String) : HangoAuthService {
         return Ok(data)
     }
 
+    @OptIn(InternalAPI::class)
     override suspend fun registerNewAccount(
         verifiedAuthId: String,
         credential: UserCredential,
@@ -132,7 +134,10 @@ class DefaultAuthService(private val baseUrl: String) : HangoAuthService {
         pictureData: Option<PictureData>,
     ): Result<SessionInfo, Exception> {
         return try {
-            val jsonPayload = GsonBuilder().create().toJson(
+            val jsonPayload = GsonBuilder()
+                .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeTypeAdapter())
+                .registerTypeAdapter(LocalDate::class.java, LocalDateTypeAdapter())
+                .create().toJson(
                 mapOf(
                     "authId" to verifiedAuthId,
                     "credential" to credential,
@@ -144,14 +149,14 @@ class DefaultAuthService(private val baseUrl: String) : HangoAuthService {
                 url = "$baseUrl/account/create",
                 formData = formData {
                     append("jsonPayload", jsonPayload)
-                    pictureData.ifSome {
-                        append("image", it.data, Headers.build {
-                            append(HttpHeaders.ContentType, it.type.toString())
+                    pictureData.ifSome { pictureData ->
+                        append("image", pictureData.data, Headers.build {
+                            append(HttpHeaders.ContentType, pictureData.type)
+                            append(
+                                HttpHeaders.ContentDisposition,
+                                "filename=${pictureData.originalFilename}"
+                            )
                         })
-                        append(
-                            HttpHeaders.ContentDisposition,
-                            "filename=${it.originalFilename}"
-                        )
                     }
                 }
             )

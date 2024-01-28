@@ -12,11 +12,20 @@ import java.time.LocalDate
 import java.time.ZoneOffset
 
 class LocalDateTypeAdapter : JsonSerializer<LocalDate>, JsonDeserializer<LocalDate> {
-    override fun serialize(src: LocalDate, typeOfSrc: Type?, context: JsonSerializationContext): JsonElement {
-        return src.atStartOfDay().toInstant(ZoneOffset.UTC).toEpochMilli().let { JsonPrimitive(it) }
+    override fun serialize(
+        src: LocalDate,
+        typeOfSrc: Type?,
+        context: JsonSerializationContext
+    ): JsonElement {
+        return src.atStartOfDay().atZone(ZoneOffset.systemDefault()).toInstant().toEpochMilli()
+            .let { JsonPrimitive(it) }
     }
 
-    override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): LocalDate {
-        return LocalDate.ofInstant(Instant.ofEpochMilli(json.asLong), ZoneOffset.UTC)
+    override fun deserialize(
+        json: JsonElement,
+        typeOfT: Type,
+        context: JsonDeserializationContext
+    ): LocalDate {
+        return LocalDate.ofInstant(Instant.ofEpochMilli(json.asLong), ZoneOffset.systemDefault())
     }
 }
