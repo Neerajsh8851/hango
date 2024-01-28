@@ -10,12 +10,11 @@ import java.lang.reflect.Type
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.time.ZoneOffset
 
 
 class LocalDateTimeTypeAdapter : JsonSerializer<LocalDateTime>, JsonDeserializer<LocalDateTime> {
     override fun serialize(src: LocalDateTime, typeOfSrc: Type, context: JsonSerializationContext): JsonElement {
-        val epochMillis = src.toInstant(ZoneOffset.UTC).toEpochMilli()
+        val epochMillis = src.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
         return JsonPrimitive(epochMillis)
     }
 

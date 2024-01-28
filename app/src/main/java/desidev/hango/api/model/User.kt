@@ -10,4 +10,9 @@ data class User(
     val profilePic: String?,
     val email: String,
     val createdAt: LocalDateTime,
-)
+    val status: Status
+) {
+    enum class Status {
+        ACTIVE, INACTIVE, BUSY
+    }
+}

@@ -13,12 +13,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -33,11 +35,12 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
-import desidev.hango.ui.screens.signup_process.signup.PasswordVisibilityToggleIconButton
+import com.arkivanov.decompose.extensions.compose.jetpack.subscribeAsState
+import desidev.hango.ui.screens.signup.signup.PasswordVisibilityToggleIconButton
 import desidev.hango.ui.theme.AppTheme
 
 
-@Preview(name = "SignInScreen", showSystemUi = true)
+@Preview(name = "SignInScreen", showSystemUi = true, apiLevel = 33)
 @Composable
 fun SignInScreenPreview() {
     AppTheme(dynamicColor = false) {
@@ -47,54 +50,54 @@ fun SignInScreenPreview() {
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignInContent(component: SignInComponent) {
-    val emailAddr by component.userEmail.collectAsState()
-    val password by component.userPassword.collectAsState()
-    val hidePassword by component.hidePassword.collectAsState()
+    val emailAddr by component.userEmail.subscribeAsState()
+    val password by component.userPassword.subscribeAsState()
+    val hidePassword by component.hidePassword.subscribeAsState()
 
-    Surface(modifier = Modifier.fillMaxSize()) {
-        ConstraintLayout {
-            val (topLabel, inputsAndOps, signInOps) = createRefs()
 
-            Text(
-                text = "Sign-in",
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.constrainAs(topLabel) {
-                    centerHorizontallyTo(parent)
-                    top.linkTo(parent.top)
-                    bottom.linkTo(inputsAndOps.top)
-                })
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(title = { Text(text = "Sign In") })
+        }
+    ) { paddingValues ->
+        Surface(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
+            ConstraintLayout {
+                val ( inputsAndOps, signInOps) = createRefs()
 
-            InputFieldsAndOptions(
-                emailAddr = emailAddr,
-                password = password,
-                hidePassword = hidePassword,
-                onEmailChange = { newValue -> component.updateEmail(newValue) },
-                onPasswordChange = { newValue -> component.updatePassword(newValue) },
-                onForgetPasswordClick = { component.forgetPasswordClick() },
-                passwordVisibilityToggle = { component.togglePasswordVisibility() },
-                modifier = Modifier.constrainAs(inputsAndOps) {
-                    centerVerticallyTo(parent)
-                    centerHorizontallyTo(parent)
-                }
-            )
+                InputFieldsAndOptions(
+                    emailAddr = emailAddr,
+                    password = password,
+                    hidePassword = hidePassword,
+                    onEmailChange = { newValue -> component.updateEmail(newValue) },
+                    onPasswordChange = { newValue -> component.updatePassword(newValue) },
+                    onForgetPasswordClick = { component.forgetPasswordClick() },
+                    passwordVisibilityToggle = { component.togglePasswordVisibility() },
+                    modifier = Modifier.constrainAs(inputsAndOps) {
+                        centerVerticallyTo(parent)
+                        centerHorizontallyTo(parent)
+                    }
+                )
 
-            SignInOptions(
-                modifier = Modifier.constrainAs(signInOps) {
-                    bottom.linkTo(parent.bottom)
-                    top.linkTo(inputsAndOps.bottom)
-                    centerHorizontallyTo(parent)
-                },
-                onSignInClick = {
-                    component.signInClick()
-                },
-                onSignUpClick = {
-                    component.signUpClick()
-                }
-            )
+                SignInOptions(
+                    modifier = Modifier.constrainAs(signInOps) {
+                        bottom.linkTo(parent.bottom)
+                        top.linkTo(inputsAndOps.bottom)
+                        centerHorizontallyTo(parent)
+                    },
+                    onSignInClick = {
+                        component.signInClick()
+                    },
+                    onSignUpClick = {
+                        component.signUpClick()
+                    }
+                )
+            }
         }
     }
+
 }
 
 

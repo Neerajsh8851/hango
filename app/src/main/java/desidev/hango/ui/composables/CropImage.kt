@@ -1,6 +1,5 @@
 package desidev.hango.ui.composables
 
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -9,18 +8,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.smarttoolfactory.cropper.ImageCropper
 import com.smarttoolfactory.cropper.model.OutlineType
 import com.smarttoolfactory.cropper.model.RectCropShape
 import com.smarttoolfactory.cropper.model.aspectRatios
-import com.smarttoolfactory.cropper.settings.*
+import com.smarttoolfactory.cropper.settings.CropDefaults
+import com.smarttoolfactory.cropper.settings.CropOutlineProperty
 
 typealias ImageBitmapCallback = (ImageBitmap) -> Unit
 
 
 @Composable
-internal fun CropImage(
+fun CropImage(
     isCrop: Boolean,
     modifier: Modifier = Modifier,
     imageBitmap: ImageBitmap?,
@@ -37,9 +38,9 @@ internal fun CropImage(
                     RectCropShape(0, "Rect"),
                 ),
                 aspectRatio = aspectRatios[3].aspectRatio,
+                fixedAspectRatio = true,
                 handleSize = handleSize,
-                overlayRatio = 0.2f,
-                maxZoom = 4f,
+                minDimension = IntSize(512, 512)
             ),
         )
     }
@@ -51,8 +52,7 @@ internal fun CropImage(
 
     imageBitmap?.let { image ->
         ImageCropper(
-            modifier = modifier
-                .fillMaxWidth(),
+            modifier = modifier,
             imageBitmap = image,
             contentDescription = null,
             cropStyle = cropStyle,

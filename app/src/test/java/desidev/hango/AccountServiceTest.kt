@@ -1,10 +1,18 @@
 package desidev.hango
 
 import desidev.hango.api.DefaultAuthService
+import desidev.hango.api.model.BasicInfo
 import desidev.hango.api.model.EmailAuthData
+import desidev.hango.api.model.Gender
+import desidev.hango.api.model.PictureData
+import desidev.hango.api.model.UserCredential
+import desidev.kotlinutils.Option
 import desidev.kotlinutils.Result
+import io.ktor.http.ContentType
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
+import java.io.File
+import java.time.LocalDate
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -33,12 +41,42 @@ class AccountServiceTest {
     @Test
     fun verifyEmailAuth_Test(): Unit = runBlocking {
         // createEmailAuth test ka result
-        val authId = "65a423e14058d41c57ee2805"
+        val authId = "65b494d336079c1f25468eaf"
 
         // otp value jo createEmailAuth request me diye hue email address pe aya hoga
-        val otpValue = "951241"
+        val otpValue = "009978"
 
         when (val result = authService.verifyEmailAuth(authId = authId, otpValue = otpValue)) {
+            is Result.Err -> println(result.err)
+            is Result.Ok -> println(result.value)
+        }
+    }
+
+    @Test
+    fun `create account test`(): Unit = runBlocking {
+        val email = "neerajshdev@gmail.com"
+        val password = "123456"
+        val verifiedAuthId = "65b494d336079c1f25468eaf"
+
+        val pathToProfilePic = "C:\\Users\\nsxyl\\OneDrive\\Pictures\\profile.png"
+        val imageData = File(pathToProfilePic).inputStream().use { it.readAllBytes() }
+
+        val pictureData = PictureData(imageData, "profile.png", ContentType.Image.PNG)
+
+        val authService = DefaultAuthService("http://139.59.85.69")
+
+        val result = authService.registerNewAccount(
+            verifiedAuthId = verifiedAuthId,
+            credential = UserCredential(email, password),
+            pictureData = Option.Some(pictureData),
+            userInfo = BasicInfo(
+                name = "test-account",
+                dateOfBirth = LocalDate.now(),
+                gender = Gender.Other
+            )
+        )
+
+        when(result) {
             is Result.Err -> println(result.err)
             is Result.Ok -> println(result.value)
         }

@@ -1,38 +1,39 @@
 package desidev.hango.ui.screens.signin
 
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import com.arkivanov.decompose.value.MutableValue
+import com.arkivanov.decompose.value.Value
+import desidev.hango.ui.post
 
 class FakeSignInComponent : SignInComponent {
-    private val _userEmail = MutableStateFlow("neerajkaemail@meraemail.com")
-    override val userEmail: StateFlow<String> = _userEmail
+    data class Model(
+        val userEmail: MutableValue<String>,
+        val userPassword: MutableValue<String>,
+        val hidePassword: MutableValue<Boolean>
+    )
 
-    private val _userPassword = MutableStateFlow("9890808")
-    override val userPassword: StateFlow<String> = _userPassword
+    private val model = Model(MutableValue(""), MutableValue(""), MutableValue(false))
 
-    private val _hidePassword = MutableStateFlow(false)
-    override val hidePassword: StateFlow<Boolean> = _hidePassword
+    override val hidePassword: Value<Boolean> = model.hidePassword
+    override val userEmail: Value<String> = model.userEmail
+    override val userPassword: Value<String> = model.userPassword
     override fun updateEmail(email: String) {
-        TODO("Not yet implemented")
+        model.userEmail.post(email)
     }
 
     override fun updatePassword(password: String) {
-        TODO("Not yet implemented")
+        model.userPassword.post(password)
     }
 
     override fun togglePasswordVisibility() {
-        TODO("Not yet implemented")
+        model.hidePassword.post(!model.hidePassword.value)
     }
 
     override fun forgetPasswordClick() {
-        TODO("Not yet implemented")
     }
 
     override fun signUpClick() {
-        TODO("Not yet implemented")
     }
 
     override fun signInClick() {
-        TODO("Not yet implemented")
     }
 }

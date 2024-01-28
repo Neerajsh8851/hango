@@ -1,10 +1,12 @@
+import org.gradle.kotlin.dsl.sourceSets
+
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.plugin)
     id("kotlin-parcelize")
-//    kotlin("plugin.serialization") version "1.9.21"
 }
+
 
 android {
     namespace = "desidev.hango"
@@ -19,6 +21,12 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
+        }
+    }
+
+    sourceSets {
+        getByName("debug") {
+//            res.setSrcDirs(listOf("src/main/res/debug"))
         }
     }
 
