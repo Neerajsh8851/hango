@@ -1,5 +1,6 @@
 package desidev.hango.ui.screens.signin
 
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -63,7 +64,9 @@ fun SignInContent(component: SignInComponent) {
             CenterAlignedTopAppBar(title = { Text(text = "Sign In") })
         }
     ) { paddingValues ->
-        Surface(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
+        Surface(modifier = Modifier
+            .padding(paddingValues)
+            .fillMaxSize()) {
             ConstraintLayout {
                 val ( inputsAndOps, signInOps) = createRefs()
 

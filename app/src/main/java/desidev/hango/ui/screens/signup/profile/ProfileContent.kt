@@ -56,6 +56,7 @@ import desidev.hango.ui.theme.AppTheme
 import desidev.kotlinutils.Option
 import desidev.kotlinutils.ifNone
 import desidev.kotlinutils.ifSome
+import java.time.LocalDate
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -76,6 +77,10 @@ fun ProfileContentPreview() {
 fun ProfileContent(component: ProfileComponent) {
     val profilePicState by component.profilePic.subscribeAsState()
     var openPhotoPicker by rememberValueAsState(value = false)
+
+    val name by component.name.subscribeAsState()
+    val dob by component.dob.subscribeAsState()
+    val gender by component.gender.subscribeAsState()
 
     if (openPhotoPicker) {
         PhotoPickerResult(
@@ -115,8 +120,13 @@ fun ProfileContent(component: ProfileComponent) {
             onPhotoEditClick = { openPhotoPicker = true }
         )
 
-        InputFields(
-            component = component,
+        BasicInfoFormFields(
+            name = name,
+            gender = gender,
+            dob = dob,
+            onNameValueChange = { component.setName(it) },
+            onBirthDateChange = { component.setDob(it) },
+            onGenderValueSelect = { component.setGender(it) },
             modifier = Modifier.constrainAs(inputs) {
                 centerHorizontallyTo(parent)
                 centerVerticallyTo(parent)
@@ -203,20 +213,25 @@ fun ProfilePic(
 
 
 @Composable
-private fun InputFields(modifier: Modifier = Modifier, component: ProfileComponent) {
-    val name by component.name.subscribeAsState()
-    val dob by component.dob.subscribeAsState()
-    val gender by component.gender.subscribeAsState()
+fun BasicInfoFormFields(
+    modifier: Modifier = Modifier,
+    name: String,
+    gender: Gender,
+    dob: LocalDate,
+    onNameValueChange: (String) -> Unit,
+    onBirthDateChange: (LocalDate) -> Unit,
+    onGenderValueSelect: OnGenderValueSelect
+) {
 
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(24.dp)) {
         OutlinedTextField(
             value = name,
             label = { Text(text = "Name") },
-            onValueChange = { newValue -> component.setName(newValue) },
+            onValueChange = onNameValueChange,
             singleLine = true
         )
-        DateOfBirthInput(selectedDate = dob, onDateSelected = { date -> component.setDob(date) })
-        GenderInput(value = gender, onValueChange = { newValue -> component.setGender(newValue) })
+        DateOfBirthInput(selectedDate = dob, onDateSelected = onBirthDateChange)
+        GenderInput(value = gender, onValueChange = onGenderValueSelect)
     }
 }
 
@@ -270,7 +285,6 @@ fun GenderInput(value: Gender, onValueChange: (Gender) -> Unit) {
                 )
             }
         }
-
     }
 }
 

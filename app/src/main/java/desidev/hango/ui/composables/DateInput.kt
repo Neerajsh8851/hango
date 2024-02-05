@@ -25,7 +25,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
 
-@Preview
+@Preview(apiLevel = 33)
 @Composable
 fun DateInputPreview() {
     AppTheme {
@@ -39,6 +39,7 @@ fun DateInputPreview() {
 fun DateOfBirthInput(
     modifier: Modifier = Modifier,
     selectedDate: LocalDate,
+    label: String = "Birthdate",
     onDateSelected: (LocalDate) -> Unit,
 ) {
     var datePickerOpen by rememberValueAsState(value = false)
@@ -46,6 +47,7 @@ fun DateOfBirthInput(
 
     OutlinedTextField(
         modifier = modifier,
+        label = { Text(text = label) },
         value = selectedDate.format(dateFormatter),
         onValueChange = {},
         readOnly = true,
