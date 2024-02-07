@@ -1,3 +1,8 @@
+/*
+ * Copyright © 2024 desidev (desidev.online)
+ * site: https://desidev.online
+ */
+
 package desidev.hango
 
 import android.os.Bundle
@@ -6,9 +11,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import com.arkivanov.decompose.ExperimentalDecomposeApi
 import com.arkivanov.decompose.retainedComponent
-import desidev.hango.api.DefaultAuthService
-import desidev.hango.ui.screens.signup.DefaultSignUpComponent
-import desidev.hango.ui.screens.signup.SignUpContent
+import desidev.hango.ui.screens.main.DefaultMainComponent
+import desidev.hango.ui.screens.main.MainContent
 import desidev.hango.ui.theme.AppTheme
 
 
@@ -26,19 +30,14 @@ class MainActivity : ComponentActivity() {
             finish()
         }
 
-        val root = retainedComponent { componentContext ->
-            DefaultSignUpComponent(
-                context = componentContext,
-                authService = DefaultAuthService("http://139.59.85.69"),
-                onAccountCreated = {
-                    Log.d(TAG, "on account created : $it")
-                }
-            )
+        
+        val main = retainedComponent {
+            DefaultMainComponent(componentContext = it)
         }
 
         setContent {
             AppTheme {
-                SignUpContent(component = root)
+                MainContent(component = main)
             }
         }
     }

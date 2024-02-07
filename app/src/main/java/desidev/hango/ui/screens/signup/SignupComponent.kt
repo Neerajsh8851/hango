@@ -36,7 +36,7 @@ import kotlinx.parcelize.Parcelize
  *
  * The `child` property represents the value holding the ChildStack configuration for managing child components within the SignUpComponent. It encapsulates the configuration and child components necessary for guiding the user through each sign-up stage.
  */
-interface SignUpComponent {
+interface SignupComponent {
     val child: Value<ChildStack<Config, Child>>
     sealed interface Config : Parcelable {
         @Parcelize

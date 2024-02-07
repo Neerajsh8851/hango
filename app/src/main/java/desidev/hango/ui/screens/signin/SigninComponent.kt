@@ -1,9 +1,8 @@
 package desidev.hango.ui.screens.signin
 
-import kotlinx.coroutines.flow.StateFlow
 import com.arkivanov.decompose.value.Value
 
-interface SignInComponent {
+interface SigninComponent {
     val userEmail: Value<String>
     val userPassword: Value<String>
     val hidePassword: Value<Boolean>

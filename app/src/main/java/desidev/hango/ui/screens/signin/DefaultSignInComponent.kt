@@ -10,13 +10,13 @@ typealias OnSigninClick = () -> Unit
 typealias OnForgetPasswordClick = () -> Unit
 
 class DefaultSignInComponent(
-    context: ComponentContext,
+    componentContext: ComponentContext,
     private val onSignupClick: OnSignupClick,
     private val onSigninClick: OnSigninClick,
     private val onForgetPasswordClick: OnForgetPasswordClick
 ) :
-    SignInComponent,
-    ComponentContext by context {
+    SigninComponent,
+    ComponentContext by componentContext {
     data class Model(
         val userEmail: MutableValue<String>,
         val userPassword: MutableValue<String>,

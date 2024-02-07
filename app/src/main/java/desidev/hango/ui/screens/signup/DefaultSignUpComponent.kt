@@ -13,7 +13,7 @@ import desidev.hango.api.HangoAuthService
 import desidev.hango.api.model.Gender
 import desidev.hango.api.model.PictureData
 import desidev.hango.ui.screens.photocrop.DefaultPhotoCropComponent
-import desidev.hango.ui.screens.signup.SignUpComponent.Config
+import desidev.hango.ui.screens.signup.SignupComponent.Config
 import desidev.hango.ui.screens.signup.account.DefaultAccountComponent
 import desidev.hango.ui.screens.signup.account.OnAccountCreated
 import desidev.hango.ui.screens.signup.profile.DefaultProfileComponent
@@ -25,11 +25,11 @@ import java.io.ByteArrayOutputStream
 import java.time.LocalDate
 
 class DefaultSignUpComponent(
-    context: ComponentContext,
+    componentContext: ComponentContext,
     private val authService: HangoAuthService,
     private val onAccountCreated: OnAccountCreated
-) : ComponentContext by context,
-    SignUpComponent {
+) : ComponentContext by componentContext,
+    SignupComponent {
 
     companion object {
         val TAG = DefaultUserCredentialComponent::class.simpleName
@@ -50,7 +50,7 @@ class DefaultSignUpComponent(
         initialConfiguration = Config.UserCredential
     ) { config, context ->
         when (config) {
-            is Config.UserCredential -> SignUpComponent.Child.SignUp(
+            is Config.UserCredential -> SignupComponent.Child.SignUp(
                 DefaultUserCredentialComponent(
                     context = context,
                     userEmail = userEmail,
@@ -61,7 +61,7 @@ class DefaultSignUpComponent(
                 )
             )
 
-            is Config.Profile -> SignUpComponent.Child.Profile(
+            is Config.Profile -> SignupComponent.Child.Profile(
                 DefaultProfileComponent(
                     context = context,
                     name = name,
@@ -80,7 +80,7 @@ class DefaultSignUpComponent(
                 )
             )
 
-            is Config.PhotoCrop -> SignUpComponent.Child.PhotoCrop(
+            is Config.PhotoCrop -> SignupComponent.Child.PhotoCrop(
                 component = DefaultPhotoCropComponent(
                     componentContext = context,
                     imageUri = config.imageUri,
@@ -91,7 +91,7 @@ class DefaultSignUpComponent(
                 )
             )
 
-            is Config.Account -> SignUpComponent.Child.Account(
+            is Config.Account -> SignupComponent.Child.Account(
                 DefaultAccountComponent(
                     context = context,
                     userEmail = userEmail,

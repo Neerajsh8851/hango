@@ -7,13 +7,13 @@ import com.arkivanov.decompose.extensions.compose.jetpack.stack.animation.plus
 import com.arkivanov.decompose.extensions.compose.jetpack.stack.animation.scale
 import com.arkivanov.decompose.extensions.compose.jetpack.stack.animation.stackAnimation
 import desidev.hango.ui.screens.photocrop.PhotoCropContent
-import desidev.hango.ui.screens.signup.SignUpComponent.Child.*
+import desidev.hango.ui.screens.signup.SignupComponent.Child.*
 import desidev.hango.ui.screens.signup.account.AccountContent
 import desidev.hango.ui.screens.signup.profile.ProfileContent
 import desidev.hango.ui.screens.signup.signup.UserCredentialContent
 
 @Composable
-fun SignUpContent(component: SignUpComponent) {
+fun SignUpContent(component: SignupComponent) {
     Children(stack = component.child, animation = stackAnimation(fade() + scale())) {
         when (val child = it.instance) {
             is SignUp -> UserCredentialContent(component = child.component)

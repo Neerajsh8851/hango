@@ -1,3 +1,8 @@
+/*
+ * Copyright © 2024 desidev (desidev.online)
+ * site: https://desidev.online
+ */
+
 package desidev.hango.ui.screens.home
 
 import android.os.Parcelable

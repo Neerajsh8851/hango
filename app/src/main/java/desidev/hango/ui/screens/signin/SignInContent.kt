@@ -53,7 +53,7 @@ fun SignInScreenPreview() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignInContent(component: SignInComponent) {
+fun SignInContent(component: SigninComponent) {
     val emailAddr by component.userEmail.subscribeAsState()
     val password by component.userPassword.subscribeAsState()
     val hidePassword by component.hidePassword.subscribeAsState()
@@ -64,11 +64,13 @@ fun SignInContent(component: SignInComponent) {
             CenterAlignedTopAppBar(title = { Text(text = "Sign In") })
         }
     ) { paddingValues ->
-        Surface(modifier = Modifier
-            .padding(paddingValues)
-            .fillMaxSize()) {
+        Surface(
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize()
+        ) {
             ConstraintLayout {
-                val ( inputsAndOps, signInOps) = createRefs()
+                val (inputsAndOps, signInOps) = createRefs()
 
                 InputFieldsAndOptions(
                     emailAddr = emailAddr,
