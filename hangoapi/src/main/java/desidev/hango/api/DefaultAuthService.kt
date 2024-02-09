@@ -34,12 +34,36 @@ import io.ktor.http.contentType
 import io.ktor.serialization.gson.gson
 import io.ktor.util.InternalAPI
 import kotlinx.coroutines.CancellationException
+import java.io.File
 import java.io.IOException
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-class DefaultAuthService(private val baseUrl: String) : HangoAuthService {
+/**
+ * Default Implementation of authService
+ *
+ * @param basedir the base directory in which it stores the session data
+ *
+ */
+
+class DefaultAuthService(
+    private val basedir: File
+) : AuthService {
+
+    private val baseUrl = "http://139.59.85.69:9080"
+
+    private val sessionStore: SessionStore by lazy {
+        if (!basedir.canWrite()) {
+            throw IOException("basedir $basedir is not writable")
+        }
+        if (!basedir.exists()) {
+            basedir.mkdirs()
+        }
+        DefaultSessionStore(basedir)
+    }
+
+
     private val client by lazy {
         HttpClient(CIO) {
             install(HttpTimeout) {
@@ -54,21 +78,37 @@ class DefaultAuthService(private val baseUrl: String) : HangoAuthService {
         }
     }
 
-    override suspend fun login(payload: UserCredential): Result<LoginResult, Exception> {
+    override suspend fun login(payload: UserCredential): Result<SessionInfo, LoginError> {
         return try {
             val response = client.post("$baseUrl/user/sign-in") {
                 contentType(ContentType.Application.Json)
                 setBody(payload)
             }
+
             if (response.status == HttpStatusCode.OK) {
-                val jwtToken = response.body<LoginResult>()
-                Ok(jwtToken)
+                val loginResult = response.body<LoginResult>()
+                if (loginResult.status == LoginResult.Status.VALID) {
+                    // save the login information
+                    sessionStore.saveSession(loginResult.data!!)
+                    Ok(loginResult.data)
+
+                } else {
+                    Err(LoginError.InvalidCredential)
+                }
             } else {
-                Err(IOException("failed with response: ${response.status}: msg: ${response.bodyAsText()}"))
+                Err(
+                    LoginError.Error(
+                        IOException("failed with response: ${response.status}: ${response.bodyAsText()}")
+                    )
+                )
             }
         } catch (ex: Exception) {
             if (ex is CancellationException) throw ex
-            Err(ex)
+            Err(
+                LoginError.Error(
+                    IOException("failed with exception: $ex")
+                )
+            )
         }
     }
 
@@ -80,8 +120,7 @@ class DefaultAuthService(private val baseUrl: String) : HangoAuthService {
             contentType(ContentType.Application.Json)
             setBody(
                 mapOf(
-                    "email" to emailAddress,
-                    "purpose" to purpose.name
+                    "email" to emailAddress, "purpose" to purpose.name
                 )
             )
         }
@@ -107,8 +146,7 @@ class DefaultAuthService(private val baseUrl: String) : HangoAuthService {
             contentType(ContentType.Application.Json)
             setBody(
                 mapOf(
-                    "authId" to authId,
-                    "otp" to otpValue
+                    "authId" to authId, "otp" to otpValue
                 )
             )
         }
@@ -122,9 +160,10 @@ class DefaultAuthService(private val baseUrl: String) : HangoAuthService {
         } catch (ex: NoTransformationFoundException) {
             return Err(ex)
         }
-
         return Ok(data)
     }
+
+
 
     @OptIn(InternalAPI::class)
     override suspend fun registerNewAccount(
@@ -134,19 +173,19 @@ class DefaultAuthService(private val baseUrl: String) : HangoAuthService {
         pictureData: Option<PictureData>,
     ): Result<SessionInfo, Exception> {
         return try {
-            val jsonPayload = GsonBuilder()
-                .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeTypeAdapter())
-                .registerTypeAdapter(LocalDate::class.java, LocalDateTypeAdapter())
-                .create().toJson(
-                mapOf(
-                    "authId" to verifiedAuthId,
-                    "credential" to credential,
-                    "basicInfo" to userInfo
+            val jsonPayload = GsonBuilder().registerTypeAdapter(
+                LocalDateTime::class.java,
+                LocalDateTimeTypeAdapter()
+            ).registerTypeAdapter(LocalDate::class.java, LocalDateTypeAdapter()).create()
+                .toJson(
+                    mapOf(
+                        "authId" to verifiedAuthId,
+                        "credential" to credential,
+                        "basicInfo" to userInfo
+                    )
                 )
-            )
 
-            val response = client.submitFormWithBinaryData(
-                url = "$baseUrl/account/create",
+            val response = client.submitFormWithBinaryData(url = "$baseUrl/account/create",
                 formData = formData {
                     append("jsonPayload", jsonPayload)
                     pictureData.ifSome { pictureData ->
@@ -158,8 +197,7 @@ class DefaultAuthService(private val baseUrl: String) : HangoAuthService {
                             )
                         })
                     }
-                }
-            )
+                })
 
             if (response.status != HttpStatusCode.OK) {
                 throw IOException("failed with response: ${response.status} ${response.bodyAsText()}")
@@ -174,5 +212,13 @@ class DefaultAuthService(private val baseUrl: String) : HangoAuthService {
         } catch (ex: CancellationException) {
             throw ex
         }
+    }
+
+    override suspend fun getCurrentLoginSession(): Option<SessionInfo> {
+        return sessionStore.getSession()
+    }
+
+    override suspend fun logout() {
+        sessionStore.clearSession()
     }
 }

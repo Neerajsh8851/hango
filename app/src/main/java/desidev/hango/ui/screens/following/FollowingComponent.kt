@@ -5,5 +5,6 @@ import desidev.hango.api.model.User
 
 interface FollowingComponent {
     val users : Value<List<User>>
+    val isLoading : Value<Boolean>
 }
 

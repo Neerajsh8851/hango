@@ -1,4 +1,4 @@
-package desidev.hango.ui.screens.following
+package desidev.hango.ui.screens.discover
 
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.MutableValue
@@ -6,9 +6,9 @@ import com.arkivanov.decompose.value.Value
 import com.arkivanov.decompose.value.operator.map
 import desidev.hango.api.model.User
 
-class DefaultFollowingComponent(
-    componentContext: ComponentContext,
-) : FollowingComponent, ComponentContext by componentContext {
+class DefaultDiscoverComponent(
+    componentContext: ComponentContext
+) : ComponentContext by componentContext, DiscoverComponent {
 
     internal data class Model(
         val users: List<User> = emptyList(),
@@ -17,6 +17,9 @@ class DefaultFollowingComponent(
 
     private val model = MutableValue(Model())
 
-    override val users: Value<List<User>> = model.map { it.users }
+    override val users: Value<List<User>>
+        get() = model.map { it.users }
+
+
     override val isLoading: Value<Boolean> = model.map { it.isLoading }
 }

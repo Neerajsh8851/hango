@@ -1,10 +1,6 @@
 package desidev.hango.handler
 
-fun interface EmailUpdateHandle {
-    fun updateEmail(value: String)
-}
+typealias OnEmailValueUpdate = (String) -> Unit
+typealias OnPasswordValueUpdate = (String) -> Unit
 
-fun interface PasswordUpdateHandle {
-    fun updatePassword(value: String)
-}
 

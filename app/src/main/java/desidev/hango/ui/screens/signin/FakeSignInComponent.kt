@@ -4,7 +4,7 @@ import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 import desidev.hango.ui.post
 
-class FakeSignInComponent : SigninComponent {
+class FakeSignInComponent : SignInComponent {
     data class Model(
         val userEmail: MutableValue<String>,
         val userPassword: MutableValue<String>,

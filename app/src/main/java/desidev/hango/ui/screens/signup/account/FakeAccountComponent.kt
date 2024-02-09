@@ -5,8 +5,7 @@ import com.arkivanov.decompose.value.Value
 import desidev.hango.api.model.EmailAuthData
 import desidev.kotlinutils.Option
 
-class FakeAccountComponent(
-) : AccountComponent {
+class FakeAccountComponent : AccountComponent {
     override val userEmail: Value<String> = MutableValue("myname@example.com")
     private val _otpValue = MutableValue("45648")
     override val otpValue: Value<String> = _otpValue

@@ -1,9 +1,7 @@
-import org.gradle.kotlin.dsl.sourceSets
-
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.plugin)
+    alias(libs.plugins.kotlin.android)
     id("kotlin-parcelize")
 }
 
@@ -24,12 +22,6 @@ android {
         }
     }
 
-    sourceSets {
-        getByName("debug") {
-//            res.setSrcDirs(listOf("src/main/res/debug"))
-        }
-    }
-
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -39,6 +31,7 @@ android {
             )
         }
     }
+
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_17
@@ -52,7 +45,8 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.kotlinCompilerExtensionVersion.get()
+        val kcev = libs.versions.kotlinCompilerExtensionVersion
+        kotlinCompilerExtensionVersion = kcev.get()
     }
     packaging {
         resources {
@@ -82,9 +76,7 @@ dependencies {
 
     testImplementation(libs.junit.test)
     androidTestImplementation(libs.androidx.junit.test)
-//    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation(platform(libs.androidx.composeBom))
-//    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation(libs.androidx.composeUiTooling)
 
     coreLibraryDesugaring(libs.desugar.jdk.libs)
@@ -99,4 +91,6 @@ dependencies {
 
     implementation(libs.kotlin.utils)
     implementation(libs.compose.cropper)
+
+    implementation(project(":hangoapi"))
 }

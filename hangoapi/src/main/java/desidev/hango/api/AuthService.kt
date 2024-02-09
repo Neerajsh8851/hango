@@ -2,7 +2,6 @@ package desidev.hango.api
 
 import desidev.hango.api.model.BasicInfo
 import desidev.hango.api.model.EmailAuthData
-import desidev.hango.api.model.LoginResult
 import desidev.hango.api.model.PictureData
 import desidev.hango.api.model.SessionInfo
 import desidev.hango.api.model.UserCredential
@@ -10,14 +9,26 @@ import desidev.kotlinutils.Option
 import desidev.kotlinutils.Result
 
 
-interface HangoAuthService {
-    suspend fun login(payload: UserCredential): Result<LoginResult, Exception>
+interface AuthService {
+    suspend fun login(payload: UserCredential): Result<SessionInfo, LoginError>
+
     suspend fun registerNewAccount(
         verifiedAuthId: String,
         credential: UserCredential,
         userInfo: BasicInfo,
         pictureData: Option<PictureData>,
     ): Result<SessionInfo, Exception>
+
+
+    /**
+     * Retrieves the current login session.
+     */
+    suspend fun getCurrentLoginSession(): Option<SessionInfo>
+
+    /**
+     * Logs out the current user.
+     */
+    suspend fun logout()
 
     /**
      * Creates a new authentication data with the given email address and purpose.

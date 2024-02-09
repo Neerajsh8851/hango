@@ -5,4 +5,5 @@ import desidev.hango.api.model.User
 
 interface DiscoverComponent {
     val users: Value<List<User>>
+    val isLoading: Value<Boolean>
 }

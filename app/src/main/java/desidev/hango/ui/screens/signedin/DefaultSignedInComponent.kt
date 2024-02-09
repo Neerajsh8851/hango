@@ -5,9 +5,6 @@
 
 package desidev.hango.ui.screens.signedin
 
-import SignedInComponent
-import SignedInComponent.Child
-import SignedInComponent.Config
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.router.stack.StackNavigation
@@ -16,6 +13,8 @@ import com.arkivanov.decompose.value.Value
 import desidev.hango.ui.screens.editprofile.DefaultEditProfileComponent
 import desidev.hango.ui.screens.home.DefaultHomeComponent
 import desidev.hango.ui.screens.myprofile.DefaultMyProfileComponent
+import desidev.hango.ui.screens.signedin.SignedInComponent.Child
+import desidev.hango.ui.screens.signedin.SignedInComponent.Config
 
 class DefaultSignedInComponent(
     componentContext: ComponentContext,
@@ -26,7 +25,7 @@ class DefaultSignedInComponent(
     override val children: Value<ChildStack<Config, Child>>
         get() = childStack(
             source = navigator,
-            initialConfiguration = Config.Home,
+            initialConfiguration = Config.HomeScreen,
             childFactory = ::createChild
         )
 
@@ -35,17 +34,24 @@ class DefaultSignedInComponent(
         componentContext: ComponentContext
     ): Child {
         return when (config) {
-            is Config.Home -> Child.HomeScreen(
-                component = DefaultHomeComponent(componentContext)
+            is Config.HomeScreen -> Child.HomeScreen(
+                component = DefaultHomeComponent(
+                    componentContext = componentContext
+                )
             )
 
-            is Config.MyProfile -> Child.MyProfileScreen(
-                component = DefaultMyProfileComponent(componentContext)
+            is Config.MyProfileScreen -> Child.MyProfileScreen(
+                component = DefaultMyProfileComponent(
+                    componentContext = componentContext
+                )
             )
 
-            is Config.EditProfile -> Child.EdiProfileScreen(
-                component = DefaultEditProfileComponent(componentContext)
+            is Config.EditProfileScreen -> Child.EdiProfileScreen(
+                component = DefaultEditProfileComponent(
+                    componentContext = componentContext
+                )
             )
         }
     }
 }
+

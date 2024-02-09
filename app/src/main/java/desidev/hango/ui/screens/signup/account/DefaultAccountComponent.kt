@@ -4,17 +4,18 @@ import android.util.Log
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
-import desidev.hango.api.HangoAuthService
+import desidev.hango.api.AuthService
 import desidev.hango.api.model.BasicInfo
 import desidev.hango.api.model.EmailAuthData
 import desidev.hango.api.model.Gender
 import desidev.hango.api.model.PictureData
-import desidev.hango.api.model.SessionInfo
 import desidev.hango.api.model.UserCredential
 import desidev.hango.ui.componentScope
 import desidev.hango.ui.post
 import desidev.hango.ui.screens.signup.account.AccountComponent.AccountCreateStatus
-import desidev.hango.ui.screens.signup.account.AccountComponent.AccountCreateStatus.*
+import desidev.hango.ui.screens.signup.account.AccountComponent.AccountCreateStatus.AccountCreateFailed
+import desidev.hango.ui.screens.signup.account.AccountComponent.AccountCreateStatus.AccountCreated
+import desidev.hango.ui.screens.signup.account.AccountComponent.AccountCreateStatus.CreatingAccount
 import desidev.hango.ui.screens.signup.account.AccountComponent.OtpStatus
 import desidev.kotlinutils.Option
 import desidev.kotlinutils.Option.Some
@@ -27,12 +28,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
-typealias OnAccountCreated = (SessionInfo) -> Unit
+typealias OnAccountCreated = () -> Unit
 
 
 class DefaultAccountComponent(
     context: ComponentContext,
-    private val authService: HangoAuthService,
+    private val authService: AuthService,
     override val userEmail: Value<String>,
     private val userPassword: Value<String>,
     private val name: Value<String>,
@@ -169,7 +170,7 @@ class DefaultAccountComponent(
                             Log.d(TAG, "createAccount: ${result.value}")
                             _accountCreateState.post(AccountCreated)
                             delay(2000)
-                            onAccountCreated(result.value)
+                            onAccountCreated()
                         }
 
                         is Result.Err -> {

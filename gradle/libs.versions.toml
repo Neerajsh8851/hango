@@ -2,30 +2,31 @@
 
 decompose = "2.2.0"
 desugar_jdk_libs = "2.0.3"
-kotlinCompilerExtensionVersion = "1.5.7"
+kotlinCompilerExtensionVersion = "1.5.9"
 androidxLifeCycle = "2.6.2"
 activityCompose = "1.8.2"
 composeBom = "2023.10.01"
 androidx_material3 = "1.2.0-beta02"
-#junit = "4.13.2"
-#testExtJunit = "1.1.5"
-#espressoCore = "3.5.1"
 ktx = "1.12.0"
 ktor_version = "2.3.7"
 constraintlayout_compose = "1.0.1"
 compose_sheets = "1.2.0"
+coil = "2.5.0"
 
 #plugins version
-androidGraldePlugin = "8.1.2"
-kotlinGradlePlugin = "1.9.21"
+androidGraldePlugin = "8.1.4"
+kotlinGradlePlugin = "1.9.22"
 ohTeePeeVersion = "1.0.6"
+objectBoxVersion = "3.7.1"
 
-coil = "2.5.0"
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGraldePlugin" }
-kotlin-plugin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlinGradlePlugin" }
-org-jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlinGradlePlugin" }
+android-library = { id = "com.android.library", version.ref = "androidGraldePlugin" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlinGradlePlugin" }
+io-objectbox = { id = "io.objectbox", version.ref = "objectBoxVersion"}
+
 
 
 [libraries]

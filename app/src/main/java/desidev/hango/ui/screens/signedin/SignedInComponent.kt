@@ -3,6 +3,7 @@
  * site: https://desidev.online
  */
 
+package desidev.hango.ui.screens.signedin
 
 import android.os.Parcelable
 import com.arkivanov.decompose.router.stack.ChildStack
@@ -14,16 +15,17 @@ import kotlinx.parcelize.Parcelize
 
 
 interface SignedInComponent {
-
     val children: Value<ChildStack<Config, Child>>
+
     sealed interface Config : Parcelable {
         @Parcelize
-        data object Home : Config
-        @Parcelize
-        data object MyProfile : Config
+        data object HomeScreen : Config
 
         @Parcelize
-        data object EditProfile : Config
+        data object MyProfileScreen : Config
+
+        @Parcelize
+        data object EditProfileScreen : Config
     }
 
     sealed interface Child {
@@ -32,3 +34,4 @@ interface SignedInComponent {
         data class EdiProfileScreen(val component: EditProfileComponent) : Child
     }
 }
+

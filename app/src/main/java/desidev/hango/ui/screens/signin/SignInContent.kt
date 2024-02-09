@@ -53,7 +53,7 @@ fun SignInScreenPreview() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignInContent(component: SigninComponent) {
+fun SignInContent(component: SignInComponent) {
     val emailAddr by component.userEmail.subscribeAsState()
     val password by component.userPassword.subscribeAsState()
     val hidePassword by component.hidePassword.subscribeAsState()

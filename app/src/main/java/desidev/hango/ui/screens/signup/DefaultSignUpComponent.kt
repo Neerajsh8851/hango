@@ -9,7 +9,7 @@ import com.arkivanov.decompose.router.stack.childStack
 import com.arkivanov.decompose.router.stack.pop
 import com.arkivanov.decompose.router.stack.push
 import com.arkivanov.decompose.value.MutableValue
-import desidev.hango.api.HangoAuthService
+import desidev.hango.api.AuthService
 import desidev.hango.api.model.Gender
 import desidev.hango.api.model.PictureData
 import desidev.hango.ui.screens.photocrop.DefaultPhotoCropComponent
@@ -26,7 +26,7 @@ import java.time.LocalDate
 
 class DefaultSignUpComponent(
     componentContext: ComponentContext,
-    private val authService: HangoAuthService,
+    private val authService: AuthService,
     private val onAccountCreated: OnAccountCreated
 ) : ComponentContext by componentContext,
     SignupComponent {

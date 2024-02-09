@@ -11,6 +11,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import com.arkivanov.decompose.ExperimentalDecomposeApi
 import com.arkivanov.decompose.retainedComponent
+import desidev.hango.api.DefaultAuthService
 import desidev.hango.ui.screens.main.DefaultMainComponent
 import desidev.hango.ui.screens.main.MainContent
 import desidev.hango.ui.theme.AppTheme
@@ -21,18 +22,25 @@ class MainActivity : ComponentActivity() {
         val TAG: String = MainActivity::class.java.simpleName
     }
 
+    private val authService by lazy {
+        DefaultAuthService(filesDir)
+    }
+
+
     @OptIn(ExperimentalDecomposeApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        Thread.setDefaultUncaughtExceptionHandler { t, e ->
+        Thread.setDefaultUncaughtExceptionHandler { _, e ->
             Log.e(TAG, "Uncaught exception", e)
             finish()
         }
 
-        
         val main = retainedComponent {
-            DefaultMainComponent(componentContext = it)
+            DefaultMainComponent(
+                componentContext = it,
+                authService = authService
+            )
         }
 
         setContent {

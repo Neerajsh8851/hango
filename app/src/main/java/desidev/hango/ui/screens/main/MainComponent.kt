@@ -5,10 +5,10 @@
 
 package desidev.hango.ui.screens.main
 
-import SignedInComponent
 import android.os.Parcelable
 import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.value.Value
+import desidev.hango.ui.screens.signedin.SignedInComponent
 import desidev.hango.ui.screens.signedout.SignedOutComponent
 import kotlinx.parcelize.Parcelize
 

@@ -3,8 +3,8 @@ package desidev.hango.ui.screens.signup.signup
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
-import desidev.hango.handler.EmailUpdateHandle
-import desidev.hango.handler.PasswordUpdateHandle
+import desidev.hango.handler.OnEmailValueUpdate
+import desidev.hango.handler.OnPasswordValueUpdate
 import desidev.hango.ui.screens.signup.profile.OnSubmit
 
 
@@ -12,8 +12,8 @@ class DefaultUserCredentialComponent(
     context: ComponentContext,
     override val userEmail: Value<String>,
     override val userPassword: Value<String>,
-    private val onEmailUpdate: EmailUpdateHandle,
-    private val onPasswordUpdate: PasswordUpdateHandle,
+    private val onEmailUpdate: OnEmailValueUpdate,
+    private val onPasswordUpdate: OnPasswordValueUpdate,
     private val onSubmitClick: OnSubmit,
 ) : UserCredentialComponent,
     ComponentContext by context {
@@ -24,11 +24,11 @@ class DefaultUserCredentialComponent(
     override val hidePassword: Value<Boolean> = _hidePassword
 
     override fun setEmail(email: String) {
-        onEmailUpdate.updateEmail(email)
+        onEmailUpdate(email)
     }
 
     override fun setPassword(password: String) {
-        onPasswordUpdate.updatePassword(password)
+        onPasswordUpdate(password)
     }
 
     override fun setConfirmPassword(password: String) {

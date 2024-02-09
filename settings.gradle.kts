@@ -1,12 +1,26 @@
 import java.net.URI
 
+
+rootProject.name = "hango"
+include(":app")
+include(":hangoapi")
+
+
+
 pluginManagement {
     repositories {
         google()
         mavenCentral()
         gradlePluginPortal()
     }
-//    includeBuild("../build-logic")
+
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.id == "io.objectbox") {
+                useModule("io.objectbox:objectbox-gradle-plugin:${requested.version}")
+            }
+        }
+    }
 }
 
 dependencyResolutionManagement {
@@ -19,5 +33,4 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "hango"
-include(":app")
+
