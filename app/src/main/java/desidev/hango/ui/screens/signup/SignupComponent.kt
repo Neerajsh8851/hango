@@ -1,14 +1,11 @@
 package desidev.hango.ui.screens.signup
 
-import android.net.Uri
-import android.os.Parcelable
 import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.value.Value
 import desidev.hango.ui.screens.photocrop.PhotoCropComponent
-import desidev.hango.ui.screens.signup.account.AccountComponent
-import desidev.hango.ui.screens.signup.profile.ProfileComponent
-import desidev.hango.ui.screens.signup.signup.UserCredentialComponent
-import kotlinx.parcelize.Parcelize
+import desidev.hango.ui.screens.account.AccountComponent
+import desidev.hango.ui.screens.profile.ProfileComponent
+import desidev.hango.ui.screens.usercredential.UserCredentialComponent
 
 /**
  * SignUpComponent Interface
@@ -37,26 +34,13 @@ import kotlinx.parcelize.Parcelize
  * The `child` property represents the value holding the ChildStack configuration for managing child components within the SignUpComponent. It encapsulates the configuration and child components necessary for guiding the user through each sign-up stage.
  */
 interface SignupComponent {
-    val child: Value<ChildStack<Config, Child>>
-    sealed interface Config : Parcelable {
-        @Parcelize
-        data object UserCredential : Config
-
-        @Parcelize
-        data object Profile : Config
-
-        @Parcelize
-        data class PhotoCrop(val imageUri: Uri): Config
-
-        @Parcelize
-        data object Account : Config
-    }
+    val child: Value<ChildStack<*, Child>>
 
     sealed interface Child {
-        data class SignUp(val component: UserCredentialComponent) : Child
-        data class Profile(val component: ProfileComponent) : Child
-        data class Account(val component: AccountComponent) : Child
-        data class PhotoCrop(val component: PhotoCropComponent) : Child
+        data class SignUpScreen(val component: UserCredentialComponent) : Child
+        data class ProfileScreen(val component: ProfileComponent) : Child
+        data class AccountScreen(val component: AccountComponent) : Child
+        data class PhotoCropScreen(val component: PhotoCropComponent) : Child
     }
 }
 

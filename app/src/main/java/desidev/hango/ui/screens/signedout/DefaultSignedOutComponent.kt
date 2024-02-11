@@ -8,7 +8,8 @@ package desidev.hango.ui.screens.signedout
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.childStack
-import com.arkivanov.decompose.router.stack.replaceCurrent
+import com.arkivanov.decompose.router.stack.pop
+import com.arkivanov.decompose.router.stack.push
 import com.arkivanov.essenty.parcelable.Parcelable
 import desidev.hango.api.AuthService
 import desidev.hango.ui.screens.signedout.SignedOutComponent.Child
@@ -27,22 +28,12 @@ class DefaultSignedOutComponent(
 
     override val children = childStack(
         source = navigator,
-        key = "SignedOutComponent",
+        handleBackButton = true,
         initialConfiguration = Config.SignInScreen,
         childFactory = ::createChild
     )
 
-
     private fun createChild(config: Config, componentContext: ComponentContext) = when (config) {
-        is Config.SignUpScreen -> Child.SignUpScreen(
-            component = DefaultSignUpComponent(
-                componentContext = componentContext,
-                authService = authService,
-                onAccountCreated = {
-                    onUserSignedIn()
-                }
-            )
-        )
 
         is Config.SignInScreen -> Child.SignInScreen(
             component = DefaultSignInComponent(
@@ -51,12 +42,24 @@ class DefaultSignedOutComponent(
                 onUserSignIn = onUserSignedIn,
                 onForgetPasswordClick = {},
                 onSignupClick = {
-                    navigator.replaceCurrent(Config.SignUpScreen)
+                    navigator.push(Config.SignUpScreen)
+                }
+            )
+        )
+
+        is Config.SignUpScreen -> Child.SignUpScreen(
+            component = DefaultSignUpComponent(
+                componentContext = componentContext,
+                authService = authService,
+                onAccountCreated = {
+                    onUserSignedIn()
+                },
+                onGoBack = {
+                    navigator.pop()
                 }
             )
         )
     }
-
 
     sealed class Config : Parcelable {
         @Parcelize

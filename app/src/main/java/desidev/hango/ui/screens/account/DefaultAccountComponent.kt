@@ -1,10 +1,11 @@
-package desidev.hango.ui.screens.signup.account
+package desidev.hango.ui.screens.account
 
 import android.util.Log
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 import desidev.hango.api.AuthService
+import desidev.hango.api.EmailAuthFailure
 import desidev.hango.api.model.BasicInfo
 import desidev.hango.api.model.EmailAuthData
 import desidev.hango.api.model.Gender
@@ -12,11 +13,11 @@ import desidev.hango.api.model.PictureData
 import desidev.hango.api.model.UserCredential
 import desidev.hango.ui.componentScope
 import desidev.hango.ui.post
-import desidev.hango.ui.screens.signup.account.AccountComponent.AccountCreateStatus
-import desidev.hango.ui.screens.signup.account.AccountComponent.AccountCreateStatus.AccountCreateFailed
-import desidev.hango.ui.screens.signup.account.AccountComponent.AccountCreateStatus.AccountCreated
-import desidev.hango.ui.screens.signup.account.AccountComponent.AccountCreateStatus.CreatingAccount
-import desidev.hango.ui.screens.signup.account.AccountComponent.OtpStatus
+import desidev.hango.ui.screens.account.AccountComponent.AccountCreateStatus
+import desidev.hango.ui.screens.account.AccountComponent.AccountCreateStatus.AccountCreateFailed
+import desidev.hango.ui.screens.account.AccountComponent.AccountCreateStatus.AccountComplete
+import desidev.hango.ui.screens.account.AccountComponent.AccountCreateStatus.CreatingAccount
+import desidev.hango.ui.screens.account.AccountComponent.OtpStatus
 import desidev.kotlinutils.Option
 import desidev.kotlinutils.Option.Some
 import desidev.kotlinutils.Result
@@ -29,7 +30,7 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 typealias OnAccountCreated = () -> Unit
-
+typealias OnGoBack = () -> Unit
 
 class DefaultAccountComponent(
     context: ComponentContext,
@@ -40,14 +41,15 @@ class DefaultAccountComponent(
     private val gender: Value<Gender>,
     private val dob: Value<LocalDate>,
     private val pictureData: Option<PictureData>,
-    private val onAccountCreated: OnAccountCreated
+    private val onAccountCreated: OnAccountCreated,
+    private val onGoBack: OnGoBack
 ) : ComponentContext by context, AccountComponent {
 
     companion object {
         val TAG = DefaultAccountComponent::class.simpleName
     }
 
-    private val scope = componentScope()
+    private val scope = componentScope(Dispatchers.IO)
 
     private val _authData = MutableValue<Option<EmailAuthData>>(Option.None)
     override val authData: Value<Option<EmailAuthData>>
@@ -88,8 +90,12 @@ class DefaultAccountComponent(
                 }
 
                 is Result.Err -> {
-                    Log.d(TAG, "requestEmailAuth: ${result.err}")
-                    _otpStatus.post(OtpStatus.OtpSentFailed(result.err.message.toString()))
+                    val errMessage: String = when (val err: EmailAuthFailure = result.err) {
+                        is EmailAuthFailure.EmailAuthCreationFailed -> "${err.responseStatus}: ${err.message}"
+                        is EmailAuthFailure.EmailAuthErr -> "Something went wrong!"
+                    }
+                    _otpStatus.post(OtpStatus.OtpSentFailed(errMessage))
+                    Log.d(TAG, "requestEmailAuth: $errMessage")
                 }
             }
         }
@@ -146,7 +152,7 @@ class DefaultAccountComponent(
         authData.value.ifSome {
             if (it.status == EmailAuthData.Status.VERIFIED && !it.isExpired()) {
                 val authData = authData.value.unwrap()
-                scope.launch(Dispatchers.IO) {
+                scope.launch {
                     _accountCreateState.post(CreatingAccount)
 
                     val result = authService.registerNewAccount(
@@ -168,7 +174,7 @@ class DefaultAccountComponent(
                     when (result) {
                         is Result.Ok -> {
                             Log.d(TAG, "createAccount: ${result.value}")
-                            _accountCreateState.post(AccountCreated)
+                            _accountCreateState.post(AccountComplete)
                             delay(2000)
                             onAccountCreated()
                         }
@@ -185,5 +191,9 @@ class DefaultAccountComponent(
                 _authData.post(Some(expiredAuth))
             }
         }
+    }
+
+    override fun goBack() {
+        onGoBack()
     }
 }

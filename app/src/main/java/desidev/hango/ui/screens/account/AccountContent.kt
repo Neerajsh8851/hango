@@ -1,6 +1,7 @@
-package desidev.hango.ui.screens.signup.account
+package desidev.hango.ui.screens.account
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -42,9 +43,10 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.ConstraintSet
 import com.arkivanov.decompose.extensions.compose.jetpack.subscribeAsState
 import com.arkivanov.decompose.value.getValue
-import desidev.hango.ui.composables.CreateAccountDialog
-import desidev.hango.ui.composables.OtpStatus
-import desidev.hango.ui.screens.signup.account.AccountComponent.OtpStatus
+import desidev.hango.ui.composables.AccountComplete
+import desidev.hango.ui.composables.AccountCreateFailed
+import desidev.hango.ui.composables.AccountCreatingStatus
+import desidev.hango.ui.screens.account.AccountComponent.OtpStatus
 import desidev.hango.ui.theme.AppTheme
 
 
@@ -59,7 +61,6 @@ fun AccountContentPreview() {
 @OptIn(ExperimentalTextApi::class)
 @Composable
 fun AccountContent(component: AccountComponent) {
-    val tag = "AccountContent"
     val userEmail by component.userEmail
     val otpValue by component.otpValue.subscribeAsState()
     val uriHandler = LocalUriHandler.current
@@ -126,13 +127,25 @@ fun AccountContent(component: AccountComponent) {
             )
 
 
-            OtpStatus(
-                otpStatus = otpStatus,
-                email = userEmail,
-                modifier = Modifier
-                    .layoutId(otpStatusId)
-                    .fillMaxWidth(0.65f)
-            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.layoutId(otpStatusId)
+            ) {
+
+                val otpStatusText = when (otpStatus) {
+                    is OtpStatus.OtpSent -> "OTP Sent"
+                    is OtpStatus.OtpVerified -> "Otp verified!"
+                    is OtpStatus.OtpVerificationError -> "Otp verification failed!"
+                    is OtpStatus.NoAttemptsLeft -> "No attempts left!"
+                    is OtpStatus.OtpExpired -> "Otp expired!"
+                    is OtpStatus.OtpInvalid -> "Otp invalid!"
+                    is OtpStatus.SendingOtp -> "Sending Otp..."
+                    else -> ""
+                }
+
+                Text(text = otpStatusText, style = typography.bodyMedium)
+                Text(text = userEmail, style = typography.titleMedium)
+            }
 
             OutlinedTextField(
                 value = otpValue,
@@ -207,11 +220,20 @@ fun AccountContent(component: AccountComponent) {
     }
 
 
+    // Start creating account if otp is verified
     if (otpStatus is OtpStatus.OtpVerified) {
         LaunchedEffect(Unit) {
             component.createAccount()
         }
-        CreateAccountDialog(accountCreateStatus = accountCreateStatus)
+
+        when (accountCreateStatus) {
+            AccountComponent.AccountCreateStatus.AccountComplete -> AccountComplete()
+            AccountComponent.AccountCreateStatus.CreatingAccount -> AccountCreatingStatus()
+            is AccountComponent.AccountCreateStatus.AccountCreateFailed -> AccountCreateFailed(
+                onRetry = { component.createAccount() },
+                onCancel = { component.goBack() }
+            )
+        }
     }
 }
 

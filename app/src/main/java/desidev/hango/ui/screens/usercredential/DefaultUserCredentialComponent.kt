@@ -1,11 +1,12 @@
-package desidev.hango.ui.screens.signup.signup
+package desidev.hango.ui.screens.usercredential
 
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 import desidev.hango.handler.OnEmailValueUpdate
 import desidev.hango.handler.OnPasswordValueUpdate
-import desidev.hango.ui.screens.signup.profile.OnSubmit
+import desidev.hango.ui.screens.account.OnGoBack
+import desidev.hango.ui.screens.profile.OnSubmit
 
 
 class DefaultUserCredentialComponent(
@@ -15,6 +16,7 @@ class DefaultUserCredentialComponent(
     private val onEmailUpdate: OnEmailValueUpdate,
     private val onPasswordUpdate: OnPasswordValueUpdate,
     private val onSubmitClick: OnSubmit,
+    private val onGoBack: OnGoBack
 ) : UserCredentialComponent,
     ComponentContext by context {
 
@@ -43,5 +45,9 @@ class DefaultUserCredentialComponent(
         if (userPassword.value == confirmPassword.value) {
             onSubmitClick.invoke()
         }
+    }
+
+    override fun goBack() {
+        onGoBack.invoke()
     }
 }

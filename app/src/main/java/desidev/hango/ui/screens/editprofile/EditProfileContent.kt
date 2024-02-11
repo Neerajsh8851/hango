@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import com.arkivanov.decompose.extensions.compose.jetpack.subscribeAsState
 import desidev.hango.R
 import desidev.hango.ui.composables.ProfilePicture
-import desidev.hango.ui.screens.signup.profile.BasicInfoFormFields
+import desidev.hango.ui.screens.profile.BasicInfoFormFields
 import desidev.hango.ui.theme.AppTheme
 import desidev.kotlinutils.ifNone
 import desidev.kotlinutils.ifSome

@@ -5,21 +5,24 @@
 
 package desidev.hango.ui.screens.main
 
+import android.os.Parcelable
 import com.arkivanov.decompose.ComponentContext
+import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.childStack
 import com.arkivanov.decompose.router.stack.replaceCurrent
+import com.arkivanov.decompose.value.Value
 import desidev.hango.api.AuthService
 import desidev.hango.ui.screens.main.MainComponent.Child
-import desidev.hango.ui.screens.main.MainComponent.Config
 import desidev.hango.ui.screens.signedin.DefaultSignedInComponent
 import desidev.hango.ui.screens.signedout.DefaultSignedOutComponent
 import desidev.kotlinutils.isSome
 import kotlinx.coroutines.runBlocking
+import kotlinx.parcelize.Parcelize
 
 class DefaultMainComponent(
-    componentContext: ComponentContext,
-    private val authService: AuthService
+    private val authService: AuthService,
+    componentContext: ComponentContext
 ) : MainComponent,
     ComponentContext by componentContext {
     private val navigator = StackNavigation<Config>()
@@ -32,9 +35,8 @@ class DefaultMainComponent(
 
     private val initialConfig: Config get() = if (currentSession.isSome()) Config.SignedIn else Config.SignedOut
 
-    override val children = childStack(
+    override val children: Value<ChildStack<*, Child>> = childStack(
         source = navigator,
-        key = "MainComponent",
         initialConfiguration = initialConfig,
         childFactory = ::createChild,
     )
@@ -60,4 +62,13 @@ class DefaultMainComponent(
                 )
             )
         }
+
+
+    sealed interface Config: Parcelable {
+        @Parcelize
+        data object SignedOut: Config
+
+        @Parcelize
+        data object SignedIn: Config
+    }
 }

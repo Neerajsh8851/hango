@@ -50,17 +50,19 @@ import java.time.LocalDateTime
 class DefaultAuthService(
     private val basedir: File
 ) : AuthService {
-
     private val baseUrl = "http://139.59.85.69:9080"
 
     private val sessionStore: SessionStore by lazy {
         if (!basedir.canWrite()) {
             throw IOException("basedir $basedir is not writable")
         }
+
         if (!basedir.exists()) {
             basedir.mkdirs()
         }
-        DefaultSessionStore(basedir)
+
+        DefaultSessionStore.init(basedir)
+        DefaultSessionStore.getInstance()
     }
 
 
@@ -115,7 +117,7 @@ class DefaultAuthService(
     override suspend fun requestEmailAuth(
         emailAddress: String,
         purpose: EmailAuthData.Purpose,
-    ): Result<EmailAuthData, Exception> {
+    ): Result<EmailAuthData, EmailAuthFailure> {
         val response = client.get("$baseUrl/email-auth/create") {
             contentType(ContentType.Application.Json)
             setBody(
@@ -126,13 +128,22 @@ class DefaultAuthService(
         }
 
         if (response.status != HttpStatusCode.OK) {
-            return Err(IOException("failed with response: ${response.status} ${response.bodyAsText()}"))
+            return Err(
+                EmailAuthFailure.EmailAuthCreationFailed(
+                    response.status.toString(),
+                    response.bodyAsText()
+                )
+            )
         }
 
         val responseData = try {
             response.body<EmailAuthData>()
         } catch (ex: NoTransformationFoundException) {
-            return Err(ex)
+            return Err(
+                EmailAuthFailure.EmailAuthErr(
+                    IOException("failed with exception: $ex")
+                )
+            )
         }
 
         return Ok(responseData)
@@ -162,7 +173,6 @@ class DefaultAuthService(
         }
         return Ok(data)
     }
-
 
 
     @OptIn(InternalAPI::class)

@@ -17,7 +17,22 @@ internal interface SessionStore {
 }
 
 
-internal class DefaultSessionStore(dir: File) : SessionStore {
+internal class DefaultSessionStore private constructor(dir: File) : SessionStore {
+
+    companion object {
+        private var instance: DefaultSessionStore? = null
+
+        fun init(dir: File) {
+            if (instance == null) {
+                instance = DefaultSessionStore(dir)
+            }
+        }
+
+        fun getInstance(): DefaultSessionStore = synchronized(this) {
+            instance ?: throw RuntimeException("SessionStore not initialized")
+        }
+    }
+
 
     private val boxStore = MyObjectBox.builder()
         .baseDirectory(dir)

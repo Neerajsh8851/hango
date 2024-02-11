@@ -1,9 +1,9 @@
-package desidev.hango.ui.screens.signup.signup
+package desidev.hango.ui.screens.usercredential
 
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 
-class FakeSignUpComponent : UserCredentialComponent {
+class FakeUserCredentialComponent : UserCredentialComponent {
     private val _userEmail = MutableValue("neerajkaemail@meraemail.com")
     override val userEmail: Value<String> = _userEmail
 
@@ -31,6 +31,10 @@ class FakeSignUpComponent : UserCredentialComponent {
         _hidePassword.value = hidePassword.value.not()
     }
     override fun onSubmit() {
+
+    }
+
+    override fun goBack() {
 
     }
 }

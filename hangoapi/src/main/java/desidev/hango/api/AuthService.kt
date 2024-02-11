@@ -35,12 +35,12 @@ interface AuthService {
      *
      * @param emailAddress The email address for which the authentication data is created.
      * @param purpose The purpose for which the authentication data is created.
-     * @return An EmailAuthResponse object containing the newly created authentication data.
+     *
      */
     suspend fun requestEmailAuth(
         emailAddress: String,
         purpose: EmailAuthData.Purpose,
-    ): Result<EmailAuthData, Exception>
+    ): Result<EmailAuthData, EmailAuthFailure>
 
     /**
      * Verifies the authentication data with the given OTP value and authentication ID.

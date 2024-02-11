@@ -1,4 +1,4 @@
-package desidev.hango.ui.screens.signup.account
+package desidev.hango.ui.screens.account
 
 import com.arkivanov.decompose.value.Value
 import desidev.hango.api.model.EmailAuthData
@@ -15,6 +15,7 @@ interface AccountComponent {
     fun verifyOtp()
     fun requestEmailAuth()
     fun createAccount()
+    fun goBack()
 
     sealed interface OtpStatus {
         data object BeforeSendingOtp : OtpStatus
@@ -23,7 +24,8 @@ interface AccountComponent {
         data class OtpSentFailed(val message: String) : OtpStatus
         data class VerifyingOtp(val authData: EmailAuthData) : OtpStatus
         data class OtpVerified(val authData: EmailAuthData) : OtpStatus
-        data class OtpVerificationError(val authData: EmailAuthData, val message: String) : OtpStatus
+        data class OtpVerificationError(val authData: EmailAuthData, val message: String) :
+            OtpStatus
         data class OtpInvalid(val authData: EmailAuthData) : OtpStatus
         data class NoAttemptsLeft(val authData: EmailAuthData) : OtpStatus
         data object OtpExpired : OtpStatus
@@ -31,7 +33,7 @@ interface AccountComponent {
 
     sealed interface AccountCreateStatus {
         data object CreatingAccount : AccountCreateStatus
-        data object AccountCreated : AccountCreateStatus
+        data object AccountComplete : AccountCreateStatus
         data class AccountCreateFailed(val message: String) : AccountCreateStatus
     }
 }

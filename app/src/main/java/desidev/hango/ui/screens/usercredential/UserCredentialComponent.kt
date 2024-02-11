@@ -1,4 +1,4 @@
-package desidev.hango.ui.screens.signup.signup
+package desidev.hango.ui.screens.usercredential
 
 import com.arkivanov.decompose.value.Value
 
@@ -14,5 +14,6 @@ interface UserCredentialComponent  {
     fun togglePasswordVisibility()
 
     fun onSubmit()
+    fun goBack()
 }
 

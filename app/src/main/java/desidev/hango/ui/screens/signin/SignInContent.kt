@@ -37,7 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.arkivanov.decompose.extensions.compose.jetpack.subscribeAsState
-import desidev.hango.ui.screens.signup.signup.PasswordVisibilityToggleIconButton
+import desidev.hango.ui.screens.usercredential.PasswordVisibilityToggleIconButton
 import desidev.hango.ui.theme.AppTheme
 
 

@@ -1,4 +1,4 @@
-package desidev.hango.ui.screens.signup.profile
+package desidev.hango.ui.screens.profile
 
 import android.net.Uri
 import androidx.compose.ui.graphics.ImageBitmap

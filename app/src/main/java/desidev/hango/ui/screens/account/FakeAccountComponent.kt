@@ -1,4 +1,4 @@
-package desidev.hango.ui.screens.signup.account
+package desidev.hango.ui.screens.account
 
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
@@ -31,4 +31,6 @@ class FakeAccountComponent : AccountComponent {
 
     override fun createAccount() {
     }
+
+    override fun goBack() {}
 }

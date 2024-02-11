@@ -10,6 +10,12 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlin.coroutines.CoroutineContext
 
+
+/**
+ * Create a new [CoroutineScope] that will be cancelled when the [LifecycleOwner] is destroyed
+ * @param coroutineContext The [CoroutineContext] to use for the new scope
+ * @param job The [Job] to use for the new scope (default is [SupervisorJob])
+ */
 fun LifecycleOwner.componentScope(
     coroutineContext: CoroutineContext = Dispatchers.Main,
     job: Job = SupervisorJob()
@@ -18,6 +24,7 @@ fun LifecycleOwner.componentScope(
         lifecycle.doOnDestroy(scope::cancel)
     }
 }
+
 
 /**
  * Post a new value to the [MutableValue]

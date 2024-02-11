@@ -1,16 +1,21 @@
-package desidev.hango.ui.screens.signup.signup
+package desidev.hango.ui.screens.usercredential
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.ClickableText
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -18,10 +23,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ChainStyle
@@ -35,11 +44,12 @@ import desidev.hango.ui.theme.AppTheme
 @Composable
 fun Preview() {
     AppTheme {
-        val bloc = remember { FakeSignUpComponent() }
+        val bloc = remember { FakeUserCredentialComponent() }
         UserCredentialContent(bloc)
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserCredentialContent(component: UserCredentialComponent) {
     val userEmail by component.userEmail.subscribeAsState()
@@ -47,9 +57,23 @@ fun UserCredentialContent(component: UserCredentialComponent) {
     val confirmPass by component.confirmPassword.subscribeAsState()
     val hidePassword by component.hidePassword.subscribeAsState()
 
-    Surface(modifier = Modifier.fillMaxSize()) {
+
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text(text = "Create Hango Account") },
+                navigationIcon = {
+                    IconButton(onClick = { component.goBack() }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = null
+                        )
+                    }
+                }
+            )
+        },
+    ) { scaffoldPadding ->
         val constraintSet = ConstraintSet {
-            val heading = createRefFor("heading")
             val email = createRefFor("email")
             val password = createRefFor("password")
             val userConfPass = createRefFor("confirmPass")
@@ -60,17 +84,10 @@ fun UserCredentialContent(component: UserCredentialComponent) {
                 bottom.linkTo(parent.bottom)
             }
 
-            val chain =
-                createVerticalChain(email, password, userConfPass, chainStyle = ChainStyle.Packed)
+            val chain = createVerticalChain(email, password, userConfPass, chainStyle = ChainStyle.Packed)
             constrain(chain) {
                 top.linkTo(parent.top)
                 bottom.linkTo(parent.bottom)
-            }
-
-            constrain(heading) {
-                top.linkTo(parent.top)
-                bottom.linkTo(email.top)
-                centerHorizontallyTo(parent)
             }
 
             constrain(email) { centerHorizontallyTo(parent) }
@@ -78,14 +95,12 @@ fun UserCredentialContent(component: UserCredentialComponent) {
             constrain(userConfPass) { centerHorizontallyTo(parent) }
         }
 
-
-        ConstraintLayout(constraintSet = constraintSet) {
-            Text(
-                text = "Create Hango Account",
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.layoutId("heading")
-            )
-
+        ConstraintLayout(
+            constraintSet = constraintSet,
+            modifier = Modifier
+                .padding(scaffoldPadding)
+                .fillMaxSize()
+        ) {
             OutlinedTextField(
                 value = userEmail,
                 label = { Text(text = "Email") },
@@ -167,6 +182,8 @@ private fun BottomContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        val localUriHandler = LocalUriHandler.current
+
         Button(
             onClick = onSubmitClick,
             modifier = Modifier.width(280.dp)
@@ -174,10 +191,28 @@ private fun BottomContent(
             Text(text = "Submit")
         }
 
-        Text(
-            text = "By signing up to Hango, you are accepting\n" +
-                    "our Terms & Conditions of use ",
-            textAlign = TextAlign.Center
+        val annotatedString = buildAnnotatedString {
+            append("By signing up to Hango, you are accepting\n")
+            // TODO:  Add a string annotation with the URL of the terms and conditions page
+            pushStringAnnotation(
+                tag = "URL",
+                annotation = "https://desidev.online/terms-and-conditions-of-use"
+            )
+            withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+                append("our Terms & Conditions of use ")
+            }
+            pop()
+        }
+
+        ClickableText(
+            text = annotatedString,
+            style = MaterialTheme.typography.bodySmall.copy(textAlign = TextAlign.Center),
+            onClick = { offset ->
+                annotatedString.getStringAnnotations(tag = "URL", start = offset, end = offset)
+                    .firstOrNull()?.let {
+                        localUriHandler.openUri(it.item)
+                    }
+            }
         )
     }
 }
