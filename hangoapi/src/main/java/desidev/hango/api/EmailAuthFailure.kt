@@ -4,7 +4,7 @@ sealed interface EmailAuthFailure {
     /**
      * The email address might not valid or the email was already used in another account.
      */
-    data class EmailAuthCreationFailed(val responseStatus: String, val message: String) :
+    data class FailedWithResponse(val responseStatus: String, val message: String) :
         EmailAuthFailure
 
     /**
@@ -13,5 +13,5 @@ sealed interface EmailAuthFailure {
      *
      * this is usually a network error / timeout
      */
-    data class EmailAuthErr(var exception: Exception) : EmailAuthFailure
+    data class FailedWithException(var exception: Exception) : EmailAuthFailure
 }

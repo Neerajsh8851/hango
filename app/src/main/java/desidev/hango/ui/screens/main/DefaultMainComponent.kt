@@ -27,13 +27,14 @@ class DefaultMainComponent(
     ComponentContext by componentContext {
     private val navigator = StackNavigation<Config>()
 
-    private val currentSession by lazy {
+    // current logged in account
+    private val currentLoggedInUser by lazy {
         runBlocking {
             authService.getCurrentLoginSession()
         }
     }
 
-    private val initialConfig: Config get() = if (currentSession.isSome()) Config.SignedIn else Config.SignedOut
+    private val initialConfig: Config get() = if (currentLoggedInUser.isSome()) Config.SignedIn else Config.SignedOut
 
     override val children: Value<ChildStack<*, Child>> = childStack(
         source = navigator,

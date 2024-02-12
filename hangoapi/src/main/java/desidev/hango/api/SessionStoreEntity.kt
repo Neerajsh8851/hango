@@ -15,5 +15,4 @@ data class SessionStoreEntity(
     var profilePicture: String?,
     var email: String,
     var createdAt: Long,
-    var status: String
 )

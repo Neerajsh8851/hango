@@ -4,6 +4,6 @@ import java.time.LocalDate
 
 data class BasicInfo(
     val name: String,
-    val dateOfBirth: LocalDate,
+    val birthDate: LocalDate,
     val gender: Gender,
 )

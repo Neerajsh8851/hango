@@ -1,13 +1,15 @@
 package desidev.hango.api
 
+import desidev.hango.api.model.LocalUser
 import desidev.hango.api.model.SessionInfo
-import desidev.hango.api.model.User
 import desidev.kotlinutils.Option
-import desidev.kotlinutils.enumValueOf
 import io.objectbox.kotlin.awaitCallInTx
 import io.objectbox.kotlin.boxFor
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.time.Instant
+import java.time.LocalDateTime
 import java.time.ZoneId
 
 internal interface SessionStore {
@@ -38,7 +40,7 @@ internal class DefaultSessionStore private constructor(dir: File) : SessionStore
         .baseDirectory(dir)
         .build()
 
-    override suspend fun saveSession(session: SessionInfo) {
+    override suspend fun saveSession(session: SessionInfo): Unit = withContext(Dispatchers.IO) {
         with(boxStore) {
             awaitCallInTx {
                 boxFor(SessionStoreEntity::class).put(session.mapToStoreEntity())
@@ -46,8 +48,8 @@ internal class DefaultSessionStore private constructor(dir: File) : SessionStore
         }
     }
 
-    override suspend fun getSession(): Option<SessionInfo> {
-        return with(boxStore) {
+    override suspend fun getSession(): Option<SessionInfo> = withContext(Dispatchers.IO) {
+        with(boxStore) {
             awaitCallInTx {
                 boxFor(SessionStoreEntity::class).all.firstOrNull()?.let {
                     Option.Some(it.mapToSessionInfo())
@@ -57,7 +59,7 @@ internal class DefaultSessionStore private constructor(dir: File) : SessionStore
     }
 
 
-    override suspend fun clearSession() {
+    override suspend fun clearSession(): Unit = withContext(Dispatchers.IO) {
         with(boxStore) {
             awaitCallInTx {
                 boxFor(SessionStoreEntity::class).removeAll()
@@ -75,17 +77,16 @@ internal class DefaultSessionStore private constructor(dir: File) : SessionStore
             gender = user.gender,
             email = user.email,
             profilePicture = user.profilePic,
-            status = user.status.name,
             createdAt = user.createdAt.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
         )
     }
 
     private fun SessionStoreEntity.mapToSessionInfo(): SessionInfo {
         return SessionInfo(
-            user = User(
+            user = LocalUser(
                 id = uid,
                 name = name,
-                birthDate = java.time.LocalDateTime.ofInstant(
+                birthDate = LocalDateTime.ofInstant(
                     Instant.ofEpochMilli(
                         birthDate
                     ), ZoneId.systemDefault()
@@ -93,9 +94,7 @@ internal class DefaultSessionStore private constructor(dir: File) : SessionStore
                 gender = gender,
                 email = email,
                 profilePic = profilePicture,
-                status = enumValueOf<User.Status>(status)
-                    ?: throw RuntimeException("Invalid status value"),
-                createdAt = java.time.LocalDateTime.ofInstant(
+                createdAt = LocalDateTime.ofInstant(
                     Instant.ofEpochMilli(
                         createdAt
                     ), ZoneId.systemDefault()

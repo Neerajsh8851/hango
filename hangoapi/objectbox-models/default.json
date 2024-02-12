@@ -53,11 +53,6 @@
           "id": "9:2869557949463420865",
           "name": "createdAt",
           "type": 6
-        },
-        {
-          "id": "10:8230060044977879081",
-          "name": "status",
-          "type": 9
         }
       ],
       "relations": []
@@ -71,7 +66,9 @@
   "modelVersionParserMinimum": 5,
   "retiredEntityUids": [],
   "retiredIndexUids": [],
-  "retiredPropertyUids": [],
+  "retiredPropertyUids": [
+    8230060044977879081
+  ],
   "retiredRelationUids": [],
   "version": 1
 }

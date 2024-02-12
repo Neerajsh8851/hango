@@ -52,5 +52,5 @@ interface AuthService {
     suspend fun verifyEmailAuth(
         authId: String,
         otpValue: String,
-    ): Result<EmailAuthData, Exception>
+    ): Result<EmailAuthData, EmailAuthFailure>
 }

@@ -12,6 +12,7 @@ import desidev.hango.ui.post
 import desidev.kotlinutils.Result
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 typealias OnSignupClick = () -> Unit
 typealias OnForgetPasswordClick = () -> Unit
@@ -35,7 +36,7 @@ class DefaultSignInComponent(
         val hidePassword: MutableValue<Boolean>
     )
 
-    private val scope = componentScope(Dispatchers.IO)
+    private val scope = componentScope()
 
     private val model = Model(MutableValue(""), MutableValue(""), MutableValue(false))
 
@@ -80,6 +81,7 @@ class DefaultSignInComponent(
 
                 is Result.Err -> {
                     when (val error = loginResult.err) {
+
                         LoginError.InvalidCredential -> {
                             // TODO: show invalid credential message on screen
                             Log.d(TAG, "signInClick: invalid credential")
@@ -88,6 +90,14 @@ class DefaultSignInComponent(
                         is LoginError.Error -> {
                             // TODO: show error message on screen
                             Log.d(TAG, "signInClick: failed with exception: ${error.exception} ")
+                            error.exception.printStackTrace()
+                        }
+
+                        is LoginError.FailedWithResponse -> {
+                            Log.d(
+                                TAG,
+                                "signInClick: failed with response: ${error.response} - ${error.message}"
+                            )
                         }
                     }
                 }

@@ -91,8 +91,8 @@ class DefaultAccountComponent(
 
                 is Result.Err -> {
                     val errMessage: String = when (val err: EmailAuthFailure = result.err) {
-                        is EmailAuthFailure.EmailAuthCreationFailed -> "${err.responseStatus}: ${err.message}"
-                        is EmailAuthFailure.EmailAuthErr -> "Something went wrong!"
+                        is EmailAuthFailure.FailedWithResponse -> "${err.responseStatus}: ${err.message}"
+                        is EmailAuthFailure.FailedWithException -> "Something went wrong!"
                     }
                     _otpStatus.post(OtpStatus.OtpSentFailed(errMessage))
                     Log.d(TAG, "requestEmailAuth: $errMessage")
@@ -164,7 +164,7 @@ class DefaultAccountComponent(
                         userInfo = BasicInfo(
                             name = name.value,
                             gender = gender.value,
-                            dateOfBirth = dob.value
+                            birthDate = dob.value
                         ),
                         pictureData = pictureData
                     )

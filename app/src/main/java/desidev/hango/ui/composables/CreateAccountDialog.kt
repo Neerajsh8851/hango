@@ -12,11 +12,13 @@ import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -87,7 +89,7 @@ fun AccountComplete(modifier: Modifier = Modifier) {
         properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
     ) {
         Surface(
-            shape = shapes.medium,
+            shape = shapes.large,
         ) {
             Column(
                 modifier = modifier.padding(24.dp),
@@ -103,8 +105,8 @@ fun AccountComplete(modifier: Modifier = Modifier) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Account Created", style = typography.titleLarge)
-                    Spacer(modifier = Modifier.padding(12.dp) )
+                    Text("Account Complete", style = typography.headlineSmall)
+                    Spacer(modifier = Modifier.padding(12.dp))
                     Text(
                         "Your account information has been added and you will be redirected to the home page in a few seconds.",
                         style = typography.bodyMedium,
@@ -136,7 +138,17 @@ fun AccountCreatingStatus() {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 CircularProgressIndicator()
-                Text("Creating Account", style = typography.titleLarge)
+
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text("Creating Account", style = typography.headlineSmall)
+                    Text(
+                        text = "Please wait while we create your account.",
+                        style = typography.bodyMedium
+                    )
+                }
             }
         }
     }
@@ -173,10 +185,7 @@ fun AccountCreateFailed(
             )
         },
         confirmButton = {
-            Row(
-                horizontalArrangement = Arrangement.End,
-                modifier = Modifier.padding(top = 16.dp)
-            ) {
+            TextButton(onClick = { onRetry() }) {
                 Text(
                     text = "Retry",
                     color = colorScheme.primary
@@ -184,10 +193,7 @@ fun AccountCreateFailed(
             }
         },
         dismissButton = {
-            Row(
-                horizontalArrangement = Arrangement.End,
-                modifier = Modifier.padding(top = 16.dp)
-            ) {
+            TextButton(onClick = { onCancel() }) {
                 Text(
                     text = "Cancel",
                     color = colorScheme.primary

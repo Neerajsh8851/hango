@@ -1,5 +1,6 @@
 package desidev.hango.api
 
+import android.util.Log
 import com.google.gson.GsonBuilder
 import desidev.hango.api.model.BasicInfo
 import desidev.hango.api.model.EmailAuthData
@@ -34,6 +35,8 @@ import io.ktor.http.contentType
 import io.ktor.serialization.gson.gson
 import io.ktor.util.InternalAPI
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
 import java.time.Duration
@@ -80,98 +83,139 @@ class DefaultAuthService(
         }
     }
 
-    override suspend fun login(payload: UserCredential): Result<SessionInfo, LoginError> {
-        return try {
-            val response = client.post("$baseUrl/user/sign-in") {
-                contentType(ContentType.Application.Json)
-                setBody(payload)
-            }
-
-            if (response.status == HttpStatusCode.OK) {
-                val loginResult = response.body<LoginResult>()
-                if (loginResult.status == LoginResult.Status.VALID) {
-                    // save the login information
-                    sessionStore.saveSession(loginResult.data!!)
-                    Ok(loginResult.data)
-
-                } else {
-                    Err(LoginError.InvalidCredential)
+    override suspend fun login(payload: UserCredential): Result<SessionInfo, LoginError> =
+        withContext(Dispatchers.IO) {
+            try {
+                val response = client.post("$baseUrl/account/login") {
+                    contentType(ContentType.Application.Json)
+                    setBody(payload)
                 }
-            } else {
-                Err(
-                    LoginError.Error(
-                        IOException("failed with response: ${response.status}: ${response.bodyAsText()}")
+
+                Log.d("DefaultAuthService", "login result: ${response.bodyAsText()}")
+
+                if (response.status == HttpStatusCode.OK) {
+                    val loginResult = response.body<LoginResult>()
+                    if (loginResult.status == LoginResult.Status.VALID) {
+                        Ok(loginResult.data!!.also { sessionStore.saveSession(it) })
+                    } else {
+                        Err(LoginError.InvalidCredential)
+                    }
+                } else {
+                    Err(
+                        LoginError.FailedWithResponse(
+                            response.status.toString(),
+                            response.bodyAsText()
+                        )
                     )
+                }
+            } catch (ex: Exception) {
+                if (ex is CancellationException) throw ex
+                Err(
+                    LoginError.Error(ex)
                 )
             }
-        } catch (ex: Exception) {
-            if (ex is CancellationException) throw ex
-            Err(
-                LoginError.Error(
-                    IOException("failed with exception: $ex")
-                )
-            )
         }
-    }
 
     override suspend fun requestEmailAuth(
         emailAddress: String,
         purpose: EmailAuthData.Purpose,
-    ): Result<EmailAuthData, EmailAuthFailure> {
-        val response = client.get("$baseUrl/email-auth/create") {
-            contentType(ContentType.Application.Json)
-            setBody(
-                mapOf(
-                    "email" to emailAddress, "purpose" to purpose.name
+    ): Result<EmailAuthData, EmailAuthFailure> = withContext(Dispatchers.IO) {
+        val postResult = try {
+            client.post("$baseUrl/email-auth/create") {
+                contentType(ContentType.Application.Json)
+                setBody(
+                    mapOf(
+                        "email" to emailAddress, "purpose" to purpose.name
+                    )
+                )
+            }.let {
+                Ok(it)
+            }
+        } catch (ex: Exception) {
+            if (ex is CancellationException) throw ex
+            Err(EmailAuthFailure.FailedWithException(ex))
+        }
+
+        when (postResult) {
+            is Ok -> {
+                val response = postResult.value
+                if (response.status == HttpStatusCode.OK) {
+                    try {
+                        Ok(response.body<EmailAuthData>())
+                    } catch (ex: NoTransformationFoundException) {
+                        Err(
+                            EmailAuthFailure.FailedWithException(
+                                IOException("failed with exception: $ex")
+                            )
+                        )
+                    }
+                } else {
+                    Err(
+                        EmailAuthFailure.FailedWithResponse(
+                            response.status.toString(),
+                            response.bodyAsText()
+                        )
+                    )
+                }
+            }
+
+            is Err -> Err(
+                EmailAuthFailure.FailedWithException(
+                    IOException("failed with exception: ${postResult.err}")
                 )
             )
         }
-
-        if (response.status != HttpStatusCode.OK) {
-            return Err(
-                EmailAuthFailure.EmailAuthCreationFailed(
-                    response.status.toString(),
-                    response.bodyAsText()
-                )
-            )
-        }
-
-        val responseData = try {
-            response.body<EmailAuthData>()
-        } catch (ex: NoTransformationFoundException) {
-            return Err(
-                EmailAuthFailure.EmailAuthErr(
-                    IOException("failed with exception: $ex")
-                )
-            )
-        }
-
-        return Ok(responseData)
     }
+
 
     override suspend fun verifyEmailAuth(
         authId: String,
         otpValue: String,
-    ): Result<EmailAuthData, Exception> {
-        val response = client.post("${baseUrl}/email-auth/verify") {
-            contentType(ContentType.Application.Json)
-            setBody(
-                mapOf(
-                    "authId" to authId, "otp" to otpValue
+    ): Result<EmailAuthData, EmailAuthFailure> = withContext(Dispatchers.IO) {
+
+        val postResult = try {
+            client.post("$baseUrl/email-auth/verify") {
+                contentType(ContentType.Application.Json)
+                setBody(
+                    mapOf(
+                        "authId" to authId, "otp" to otpValue
+                    )
+                )
+            }.let {
+                Ok(it)
+            }
+        } catch (ex: Exception) {
+            if (ex is CancellationException) throw ex
+            Err(EmailAuthFailure.FailedWithException(ex))
+        }
+
+        when (postResult) {
+            is Ok -> {
+                val response = postResult.value
+                if (response.status == HttpStatusCode.OK) {
+                    try {
+                        Ok(response.body<EmailAuthData>())
+                    } catch (ex: NoTransformationFoundException) {
+                        Err(
+                            EmailAuthFailure.FailedWithException(ex)
+                        )
+                    }
+                } else {
+                    Err(
+                        EmailAuthFailure.FailedWithResponse(
+                            response.status.toString(),
+                            response.bodyAsText()
+                        )
+                    )
+                }
+            }
+
+            is Err -> Err(
+                EmailAuthFailure.FailedWithException(
+                    IOException("failed with exception: ${postResult.err}")
                 )
             )
         }
-
-        if (response.status != HttpStatusCode.OK) {
-            return Err(IOException("failed with response: ${response.status}: ${response.bodyAsText()}"))
-        }
-
-        val data: EmailAuthData = try {
-            response.body()
-        } catch (ex: NoTransformationFoundException) {
-            return Err(ex)
-        }
-        return Ok(data)
     }
 
 
@@ -181,8 +225,8 @@ class DefaultAuthService(
         credential: UserCredential,
         userInfo: BasicInfo,
         pictureData: Option<PictureData>,
-    ): Result<SessionInfo, Exception> {
-        return try {
+    ): Result<SessionInfo, Exception> = withContext(Dispatchers.IO) {
+        try {
             val jsonPayload = GsonBuilder().registerTypeAdapter(
                 LocalDateTime::class.java,
                 LocalDateTimeTypeAdapter()
@@ -213,7 +257,7 @@ class DefaultAuthService(
                 throw IOException("failed with response: ${response.status} ${response.bodyAsText()}")
             }
 
-            Ok(response.body())
+            Ok(response.body<SessionInfo>().also { sessionStore.saveSession(it) })
 
         } catch (ex: IOException) {
             Err(ex)

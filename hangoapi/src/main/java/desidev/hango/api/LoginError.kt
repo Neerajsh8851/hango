@@ -9,6 +9,11 @@ sealed interface LoginError {
     data object InvalidCredential : LoginError
 
     /**
+     * LoginError representing a failed login attempt with a response.
+     */
+    data class FailedWithResponse(val response: String, val message: String) : LoginError
+
+    /**
      * This error occurs when the login process failed due to an exception.
      * @param exception The exception that caused the error.
      */
